@@ -49,6 +49,30 @@ storage      Uploads locais ignorados pelo Git
 docs         Documentação do produto
 ```
 
+## Configurar autenticação local
+
+Copie `.env.example` para `.env` e preencha as credenciais OAuth. Sem elas, a aplicação continua funcionando e informa que os provedores estão indisponíveis.
+
+### Google
+
+Crie um cliente OAuth do tipo aplicação web e cadastre:
+
+```text
+Origem JavaScript: http://localhost:3000
+URI de redirecionamento: http://localhost:8000/auth/google/callback
+```
+
+### Strava
+
+Crie uma aplicação no painel de desenvolvedor do Strava e use:
+
+```text
+Authorization Callback Domain: localhost
+Callback: http://localhost:8000/auth/strava/callback
+```
+
+Os tokens do Strava são criptografados antes de serem persistidos. Use valores longos, aleatórios e diferentes em `SESSION_SECRET` e `TOKEN_ENCRYPTION_SECRET`.
+
 ## Estado atual
 
-A fundação local contém a landing page responsiva, API de saúde, PostgreSQL/PostGIS e a primeira migration da entidade de usuário. Autenticação com Google e Strava será a próxima etapa.
+A aplicação contém landing page responsiva, login Google/Strava, sessões persistidas por cookie seguro, onboarding, perfil, configurações de privacidade, PostgreSQL/PostGIS e migrations. As credenciais OAuth não são versionadas.

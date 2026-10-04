@@ -42,6 +42,31 @@ h1 em { color: var(--orange); font-style: normal; }
 .community > p { color: var(--ink); }
 .community h2 { margin: 20px auto 45px; }
 .community .button { background: var(--paper); }
+.auth-shell { min-height: 100vh; padding: 42px 6vw; background: var(--ink); color: var(--paper); }
+.auth-shell > .brand { display: inline-block; margin-bottom: 70px; }
+.auth-card { width: min(620px, 100%); margin: 0 auto; }
+.auth-card h1, .onboarding-copy h1 { font-size: clamp(52px, 7vw, 92px); margin: 28px 0; }
+.auth-card > p { color: #a8aaa2; font-size: 18px; line-height: 1.6; max-width: 540px; }
+.auth-actions { display: grid; gap: 14px; margin: 35px 0 25px; }
+.provider { border: 1px solid #5b5d55; border-radius: 12px; padding: 17px 20px; display: flex; align-items: center; gap: 15px; font-weight: 700; transition: border-color .2s, transform .2s; }
+.provider:hover { border-color: var(--lime); transform: translateY(-2px); }
+.provider b { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: var(--paper); color: var(--ink); }
+.provider.strava b { background: #fc4c02; color: white; }
+.provider.disabled { opacity: .35; pointer-events: none; }
+.setup-note { padding: 16px; border-left: 3px solid var(--lime); background: #252621; color: #c8cabf; margin: 22px 0; line-height: 1.5; }
+.auth-card > small { color: #73756e; }
+.onboarding-shell { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+.onboarding-copy { background: var(--ink); color: var(--paper); padding: 55px 6vw; display: flex; flex-direction: column; justify-content: space-between; }
+.onboarding-copy > div > span { color: var(--lime); font-size: 12px; letter-spacing: 2px; font-weight: 700; }
+.onboarding-copy p { color: #a8aaa2; max-width: 520px; font-size: 17px; line-height: 1.6; }
+.onboarding-form { padding: 8vh 8vw; display: flex; flex-direction: column; justify-content: center; gap: 20px; }
+.onboarding-form label { display: grid; gap: 8px; font-size: 13px; font-weight: 700; }
+.onboarding-form label > span, .onboarding-form small { color: var(--muted); font-weight: 400; }
+.onboarding-form input, .onboarding-form select { width: 100%; border: 0; border-bottom: 1px solid #b9baaf; background: transparent; padding: 12px 2px; font: 500 17px 'DM Sans'; outline: none; }
+.onboarding-form input:focus, .onboarding-form select:focus { border-color: var(--orange); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.form-error { color: #b92814; font-weight: 700; }
+.onboarding-form .button { align-self: flex-start; margin-top: 15px; }
 @media (max-width: 760px) {
   .nav-links > a { display: none; }
   .hero { padding: 60px 6vw 110px; min-height: 690px; }
@@ -50,4 +75,7 @@ h1 em { color: var(--orange); font-style: normal; }
   .distance-strip { left: 6vw; right: auto; overflow: hidden; max-width: 90vw; }
   .feature-grid { grid-template-columns: 1fr; }
   .feature-grid article { min-height: 240px; }
+  .onboarding-shell { grid-template-columns: 1fr; }
+  .onboarding-copy { min-height: 440px; }
+  .onboarding-form { padding: 60px 7vw; }
 }

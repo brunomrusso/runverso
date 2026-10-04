@@ -14,7 +14,7 @@ export default function Home() {
         <div className="nav-links">
           <a href="#recursos">Recursos</a>
           <a href="#comunidade">Comunidade</a>
-          <button className="button button-small">Entrar</button>
+          <a className="button button-small" href="/entrar">Entrar</a>
         </div>
       </nav>
 
@@ -23,8 +23,8 @@ export default function Home() {
         <h1>Sua história.<br /><em>Seu percurso.</em><br />Seu Runverso.</h1>
         <p>Provas, medalhas, recordes e todos os lugares onde a corrida já levou você — reunidos em um perfil feito para corredores.</p>
         <div className="actions">
-          <button className="button">Criar meu Runverso <b>↗</b></button>
-          <button className="button button-ghost">Conectar com Strava</button>
+          <a className="button" href="/entrar">Criar meu Runverso <b>↗</b></a>
+          <a className="button button-ghost" href="/entrar">Conectar com Strava</a>
         </div>
         <div className="distance-strip">{distances.map((distance) => <span key={distance}>{distance}</span>)}</div>
         <div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="runner">R</div>
@@ -50,7 +50,7 @@ export default function Home() {
       <section className="community" id="comunidade">
         <p>DO PRIMEIRO 5K À PRÓXIMA ULTRA</p>
         <h2>Cada corredor carrega<br />um universo de histórias.</h2>
-        <button className="button">Começar agora</button>
+        <a className="button" href="/entrar">Começar agora</a>
       </section>
     </main>
   );
