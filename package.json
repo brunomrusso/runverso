@@ -1,0 +1,10 @@
+{
+  "name": "runverso",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["apps/web"],
+  "scripts": {
+    "dev:web": "npm --workspace @runverso/web run dev",
+    "build:web": "npm --workspace @runverso/web run build"
+  }
+}

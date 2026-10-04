@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root { --ink: #11120f; --paper: #f4f1e8; --lime: #c8ff32; --orange: #ff5938; --muted: #777970; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'DM Sans', sans-serif; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; }
+nav { height: 82px; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; border-bottom: 1px solid rgba(17,18,15,.16); }
+.brand { font: 700 22px 'Space Grotesk'; letter-spacing: -1px; }
+.brand span { color: var(--orange); }
+.nav-links { display: flex; gap: 34px; align-items: center; font-size: 14px; font-weight: 600; }
+.button { border: 1px solid var(--ink); border-radius: 999px; padding: 15px 24px; background: var(--lime); color: var(--ink); font-weight: 700; cursor: pointer; box-shadow: 3px 3px 0 var(--ink); transition: transform .2s, box-shadow .2s; }
+.button:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.button-small { padding: 10px 21px; box-shadow: none; background: transparent; }
+.button-ghost { background: transparent; box-shadow: none; }
+.hero { min-height: 730px; padding: 80px 8vw 55px; position: relative; overflow: hidden; }
+.eyebrow { display: flex; align-items: center; gap: 10px; text-transform: uppercase; font-size: 12px; font-weight: 700; letter-spacing: 2px; }
+.eyebrow i { width: 28px; height: 3px; background: var(--orange); }
+h1 { font: 700 clamp(58px, 8.2vw, 126px)/.83 'Space Grotesk'; letter-spacing: -7px; margin: 35px 0; max-width: 940px; position: relative; z-index: 2; }
+h1 em { color: var(--orange); font-style: normal; }
+.hero > p { width: min(520px, 100%); font-size: 18px; line-height: 1.65; color: #51534c; }
+.actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
+.distance-strip { position: absolute; right: 5vw; bottom: 40px; display: flex; gap: 8px; transform: rotate(-3deg); }
+.distance-strip span { background: var(--ink); color: var(--paper); padding: 8px 12px; font: 700 12px 'Space Grotesk'; }
+.distance-strip span:nth-child(4), .distance-strip span:nth-child(6) { background: var(--orange); }
+.orbit { position: absolute; border: 1px solid rgba(17,18,15,.15); border-radius: 50%; pointer-events: none; }
+.orbit-one { width: 500px; height: 500px; right: -80px; top: 60px; }
+.orbit-two { width: 340px; height: 340px; right: 0; top: 140px; border-color: rgba(255,89,56,.35); }
+.runner { position: absolute; right: 170px; top: 270px; background: var(--lime); width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center; font: 700 46px 'Space Grotesk'; transform: rotate(10deg); border: 2px solid var(--ink); }
+.features { background: var(--ink); color: var(--paper); padding: 100px 7vw; }
+.section-heading span, .community > p { color: var(--lime); font-size: 12px; letter-spacing: 2px; font-weight: 700; }
+.section-heading h2, .community h2 { font: 600 clamp(40px, 5vw, 72px)/1 'Space Grotesk'; letter-spacing: -3px; margin: 20px 0 60px; }
+.feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #3b3d36; border: 1px solid #3b3d36; }
+.feature-grid article { min-height: 310px; padding: 34px; background: var(--ink); display: flex; flex-direction: column; }
+.feature-grid small { color: var(--orange); font-weight: 700; }
+.feature-grid h3 { font: 600 27px 'Space Grotesk'; margin-top: auto; }
+.feature-grid p { color: #a8aaa2; line-height: 1.6; }
+.feature-grid a { font-weight: 700; margin-top: 14px; }
+.feature-grid a span { color: var(--lime); margin-left: 6px; }
+.community { min-height: 470px; padding: 100px 7vw; text-align: center; background: var(--orange); }
+.community > p { color: var(--ink); }
+.community h2 { margin: 20px auto 45px; }
+.community .button { background: var(--paper); }
+@media (max-width: 760px) {
+  .nav-links > a { display: none; }
+  .hero { padding: 60px 6vw 110px; min-height: 690px; }
+  h1 { letter-spacing: -4px; }
+  .runner, .orbit { opacity: .35; }
+  .distance-strip { left: 6vw; right: auto; overflow: hidden; max-width: 90vw; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .feature-grid article { min-height: 240px; }
+}
