@@ -1,3 +1,5 @@
+import { AuthActions } from "@/components/auth-actions";
+
 const features = [
   { tag: "01", title: "Seu porta-medalhas", text: "Organize cada conquista por distância, prova, ano e lugar." },
   { tag: "02", title: "Seu mapa de corrida", text: "Descubra os países, estados e cidades que seus passos já alcançaram." },
@@ -14,7 +16,7 @@ export default function Home() {
         <div className="nav-links">
           <a href="#recursos">Recursos</a>
           <a href="#comunidade">Comunidade</a>
-          <a className="button button-small" href="/entrar">Entrar</a>
+          <AuthActions compact />
         </div>
       </nav>
 
@@ -23,8 +25,7 @@ export default function Home() {
         <h1>Sua história.<br /><em>Seu percurso.</em><br />Seu Runverso.</h1>
         <p>Provas, medalhas, recordes e todos os lugares onde a corrida já levou você — reunidos em um perfil feito para corredores.</p>
         <div className="actions">
-          <a className="button" href="/entrar">Criar meu Runverso <b>↗</b></a>
-          <a className="button button-ghost" href="/entrar">Conectar com Strava</a>
+          <AuthActions />
         </div>
         <div className="distance-strip">{distances.map((distance) => <span key={distance}>{distance}</span>)}</div>
         <div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="runner">R</div>
@@ -50,7 +51,7 @@ export default function Home() {
       <section className="community" id="comunidade">
         <p>DO PRIMEIRO 5K À PRÓXIMA ULTRA</p>
         <h2>Cada corredor carrega<br />um universo de histórias.</h2>
-        <a className="button" href="/entrar">Começar agora</a>
+        <div className="community-action"><AuthActions /></div>
       </section>
     </main>
   );

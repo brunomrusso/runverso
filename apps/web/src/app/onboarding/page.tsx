@@ -38,7 +38,7 @@ export default function OnboardingPage() {
       setError(data.detail ?? "Não foi possível salvar seu perfil");
       return;
     }
-    router.push("/");
+    router.push("/dashboard");
   }
 
   if (loading) return <main className="onboarding-shell"><p>Preparando seu Runverso…</p></main>;

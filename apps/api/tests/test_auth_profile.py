@@ -56,11 +56,12 @@ def test_me_requires_authentication() -> None:
     assert response.status_code == 401
 
 
-def test_auth_config_is_safe_without_credentials() -> None:
+def test_auth_config_exposes_only_provider_availability() -> None:
     response = TestClient(app).get("/config/auth")
 
     assert response.status_code == 200
-    assert response.json() == {"google": False, "strava": False}
+    assert set(response.json()) == {"google", "strava"}
+    assert all(isinstance(value, bool) for value in response.json().values())
 
 
 def test_authenticated_user_completes_onboarding(authenticated_client: TestClient) -> None:

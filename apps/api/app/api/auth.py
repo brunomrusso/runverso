@@ -48,7 +48,8 @@ async def google_callback(request: Request, db: Session = Depends(get_db)) -> Re
     if not user_info or not user_info.get("email_verified"):
         raise HTTPException(status_code=400, detail="Conta Google sem e-mail verificado")
     user = find_or_create_google_user(db, user_info)
-    response = RedirectResponse(f"{settings.frontend_url}/onboarding")
+    destination = "dashboard" if user.profile.onboarding_completed else "onboarding"
+    response = RedirectResponse(f"{settings.frontend_url}/{destination}")
     set_session_cookie(response, create_session(db, user))
     return response
 
@@ -69,7 +70,8 @@ async def strava_callback(request: Request, db: Session = Depends(get_db)) -> Re
     if "athlete" not in token:
         raise HTTPException(status_code=400, detail="O Strava não retornou os dados do atleta")
     user = find_or_create_strava_user(db, token)
-    response = RedirectResponse(f"{settings.frontend_url}/onboarding")
+    destination = "dashboard" if user.profile.onboarding_completed else "onboarding"
+    response = RedirectResponse(f"{settings.frontend_url}/{destination}")
     set_session_cookie(response, create_session(db, user))
     return response
 
