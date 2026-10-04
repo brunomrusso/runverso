@@ -4,20 +4,29 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.db.session import engine
 from app.dependencies.database import get_db
 from app.main import app
-from app.models import AuthIdentity, PrivacySettings, Profile, User, UserSession
+from app.models import (
+    AuthIdentity,
+    PrivacySettings,
+    Profile,
+    StravaConnection,
+    User,
+    UserSession,
+)
+from app.services.oauth import find_or_create_strava_user
 
 
 @pytest.fixture
 def db() -> Generator[Session, None, None]:
     connection = engine.connect()
     transaction = connection.begin()
-    session = Session(bind=connection)
+    session = Session(bind=connection, join_transaction_mode="create_savepoint")
     app.dependency_overrides[get_db] = lambda: session
     try:
         yield session
@@ -86,6 +95,51 @@ def test_authenticated_user_completes_onboarding(authenticated_client: TestClien
     assert data["profile"]["country_code"] == "BR"
     assert data["profile"]["onboarding_completed"] is True
     assert data["providers"] == ["google"]
+
+
+def test_strava_is_linked_without_creating_duplicate_user(
+    db: Session, authenticated_client: TestClient
+) -> None:
+    user = db.scalar(select(User).where(User.email == "runner@example.com"))
+    token = {
+        "athlete": {
+            "id": 12345,
+            "firstname": "Runner",
+            "lastname": "Teste",
+            "city": "São Paulo",
+            "state": "SP",
+        },
+        "access_token": "access-token",
+        "refresh_token": "refresh-token",
+        "expires_at": int((datetime.now(UTC) + timedelta(hours=6)).timestamp()),
+    }
+
+    user_count = db.scalar(select(func.count()).select_from(User))
+    linked_user = find_or_create_strava_user(db, token, target_user=user)
+
+    assert linked_user.id == user.id
+    assert db.scalar(select(func.count()).select_from(User)) == user_count
+    assert db.get(StravaConnection, user.id).athlete_id == "12345"
+    assert {identity.provider for identity in user.identities} == {"google", "strava"}
+
+
+def test_strava_already_linked_to_another_user_is_rejected(
+    db: Session, authenticated_client: TestClient
+) -> None:
+    first_user = db.scalar(select(User).where(User.email == "runner@example.com"))
+    token = {
+        "athlete": {"id": 67890, "firstname": "Runner"},
+        "access_token": "access-token",
+        "refresh_token": "refresh-token",
+        "expires_at": int((datetime.now(UTC) + timedelta(hours=6)).timestamp()),
+    }
+    find_or_create_strava_user(db, token, target_user=first_user)
+    second_user = User(email="second@example.com")
+    db.add(second_user)
+    db.flush()
+
+    with pytest.raises(ValueError, match="outro usuário"):
+        find_or_create_strava_user(db, token, target_user=second_user)
 
 
 def test_public_profile_hides_real_name_by_default(authenticated_client: TestClient) -> None:

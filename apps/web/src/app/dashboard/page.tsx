@@ -58,7 +58,7 @@ export default function DashboardPage() {
       <section className="dashboard-main">
         <header className="dashboard-header"><div><span>OLÁ, {runner.profile.username?.toUpperCase()}</span><h1>Bem-vindo ao<br /><em>seu Runverso.</em></h1></div><div className="avatar">{runner.profile.display_name?.charAt(0).toUpperCase()}</div></header>
         <div className="dashboard-stats">{cards.map((card) => <article key={card.label}><strong>{card.value}</strong><h2>{card.label}</h2><p>{card.detail}</p></article>)}</div>
-        <section className="next-step"><div><span>PRÓXIMO PASSO</span><h2>{runner.strava_connected ? "Importe suas primeiras atividades" : "Conecte seu Strava"}</h2><p>Transforme seu histórico de corrida em provas, recordes e lugares conquistados.</p></div><a className="button" href={runner.strava_connected ? "#" : `${apiUrl}/auth/strava/login`}>{runner.strava_connected ? "Ver atividades" : "Conectar Strava"} <b>→</b></a></section>
+        <section className="next-step"><div><span>PRÓXIMO PASSO</span><h2>{runner.strava_connected ? "Importe suas primeiras atividades" : "Conecte seu Strava"}</h2><p>Transforme seu histórico de corrida em provas, recordes e lugares conquistados.</p></div><a className="button" href={runner.strava_connected ? "#" : `${apiUrl}/auth/strava/link`}>{runner.strava_connected ? "Ver atividades" : "Conectar Strava"} <b>→</b></a></section>
       </section>
     </main>
   );

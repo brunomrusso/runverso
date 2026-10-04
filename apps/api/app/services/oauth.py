@@ -67,7 +67,9 @@ def find_or_create_google_user(db: Session, user_info: dict[str, Any]) -> User:
     return user
 
 
-def find_or_create_strava_user(db: Session, token: dict[str, Any]) -> User:
+def find_or_create_strava_user(
+    db: Session, token: dict[str, Any], target_user: User | None = None
+) -> User:
     athlete = token["athlete"]
     athlete_id = str(athlete["id"])
     identity = db.scalar(
@@ -76,7 +78,17 @@ def find_or_create_strava_user(db: Session, token: dict[str, Any]) -> User:
             AuthIdentity.provider_user_id == athlete_id,
         )
     )
-    if identity:
+    if target_user and identity and identity.user_id != target_user.id:
+        raise ValueError("Esta conta Strava já está vinculada a outro usuário")
+
+    if target_user:
+        user = target_user
+        current_connection = db.get(StravaConnection, user.id)
+        if current_connection and current_connection.athlete_id != athlete_id:
+            raise ValueError("Desconecte a conta Strava atual antes de vincular outra")
+        if not identity:
+            db.add(AuthIdentity(user_id=user.id, provider="strava", provider_user_id=athlete_id))
+    elif identity:
         user = identity.user
     else:
         user = User(email=f"strava-{athlete_id}@users.runverso.local")
