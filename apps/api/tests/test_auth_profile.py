@@ -22,6 +22,7 @@ from app.models import (
     User,
     UserSession,
 )
+from app.services.geography import geography_summary, process_activity_locations
 from app.services.oauth import find_or_create_strava_user
 from app.services.races import classify_activity, distance_category
 
@@ -262,6 +263,41 @@ def test_medal_photo_is_private_and_thumbnail_is_generated(
     assert TestClient(app).get(photo["thumbnail_url"]).status_code == 401
     assert authenticated_client.get("/medals/count").json() == {"total": 1}
     assert authenticated_client.delete(f"/medals/{medal['id']}").status_code == 204
+
+
+def test_geography_uses_offline_city_centroids_instead_of_raw_coordinates(
+    db: Session, authenticated_client: TestClient
+) -> None:
+    user = db.scalar(select(User).where(User.email == "runner@example.com"))
+    activity = Activity(
+        user_id=user.id,
+        source="strava",
+        external_id="geo-activity",
+        name="Corrida em São Paulo",
+        sport_type="Run",
+        distance_meters=5000,
+        moving_time_seconds=1800,
+        elapsed_time_seconds=1900,
+        elevation_gain=30,
+        started_at=datetime.now(UTC),
+        start_latitude=-23.55052,
+        start_longitude=-46.633308,
+        source_visibility="everyone",
+        local_visibility="private",
+        raw_payload={"id": "geo-activity"},
+    )
+    db.add(activity)
+    db.commit()
+
+    result = process_activity_locations(db, user)
+    summary = geography_summary(db, user, "training")
+
+    assert result["processed"] == 1
+    assert summary["country_count"] >= 1
+    assert any(country["country_code"] == "BR" for country in summary["countries"])
+    point = next(point for point in summary["points"] if point["country_code"] == "BR")
+    assert (point["latitude"], point["longitude"]) != (-23.55052, -46.633308)
+    assert TestClient(app).get("/geography/summary").status_code == 401
 
 
 def test_public_profile_hides_real_name_by_default(authenticated_client: TestClient) -> None:

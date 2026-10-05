@@ -80,7 +80,7 @@ h1 em { color: var(--orange); font-style: normal; }
 .dashboard-header > div > span, .next-step span { color: var(--orange); font-size: 12px; letter-spacing: 2px; font-weight: 700; }
 .dashboard-header h1 { font-size: clamp(44px, 6vw, 78px); margin: 18px 0 55px; letter-spacing: -5px; }
 .avatar { width: 54px; height: 54px; border-radius: 50%; background: var(--lime); border: 2px solid var(--ink); display: grid; place-items: center; font: 700 22px 'Space Grotesk'; }
-.dashboard-stats { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid #cbc9bf; }
+.dashboard-stats { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid #cbc9bf; }
 .dashboard-stats article { padding: 25px; border-right: 1px solid #cbc9bf; min-height: 190px; }
 .dashboard-stats article:last-child { border: 0; }
 .dashboard-stats strong { font: 700 52px 'Space Grotesk'; }
@@ -169,7 +169,36 @@ h1 em { color: var(--orange); font-style: normal; }
 .photo-action { margin-top: 8px; color: var(--ink); font-size: 12px; font-weight: 700; text-decoration: underline; cursor: pointer; }
 .photo-action input { display: none; }
 .medal-info .privacy-pill { justify-self: start; }
-@media (max-width: 1000px) { .medal-grid { grid-template-columns: repeat(2, 1fr); } }
+.map-main { max-width: 1500px; width: 100%; }
+.map-mode { display: flex; gap: 8px; margin-bottom: 18px; }
+.map-mode button { border: 1px solid var(--ink); background: transparent; padding: 9px 20px; border-radius: 999px; font-weight: 700; cursor: pointer; }
+.map-mode button.active { background: var(--ink); color: var(--paper); }
+.geo-stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #cbc9bf; margin-bottom: 20px; }
+.geo-stats article { padding: 18px 22px; display: flex; align-items: baseline; gap: 9px; border-right: 1px solid #cbc9bf; }
+.geo-stats article:last-child { border: 0; }
+.geo-stats strong { font: 700 35px 'Space Grotesk'; }
+.geo-stats span { color: var(--muted); font-size: 12px; }
+.world-map { height: 470px; position: relative; overflow: hidden; background: #171814; border: 1px solid var(--ink); }
+.world-grid { position: absolute; inset: 0; opacity: .15; background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 10% 25%; }
+.continent { position: absolute; background: #34362f; border-radius: 45% 55% 50% 50%; transform: rotate(-8deg); }
+.continent.americas { width: 20%; height: 72%; left: 12%; top: 10%; }
+.continent.europe { width: 12%; height: 20%; left: 47%; top: 19%; }
+.continent.africa { width: 17%; height: 39%; left: 45%; top: 36%; }
+.continent.asia { width: 30%; height: 39%; left: 57%; top: 15%; transform: rotate(5deg); }
+.continent.oceania { width: 12%; height: 16%; left: 78%; top: 69%; }
+.map-point { position: absolute; transform: translate(-50%, -50%); width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--ink); background: var(--lime); z-index: 2; cursor: pointer; padding: 0; }
+.map-point span { position: absolute; left: 16px; top: -8px; background: var(--paper); border: 1px solid var(--ink); padding: 2px 5px; font-size: 9px; font-weight: 800; }
+.map-empty { position: absolute; inset: 0; display: grid; place-items: center; color: #a8aaa2; z-index: 2; }
+.country-passport { margin-top: 45px; }
+.country-passport > h2 { font: 600 32px 'Space Grotesk'; }
+.country-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.country-grid article { border: 1px solid #cbc9bf; padding: 18px; display: grid; grid-template-columns: 60px 1fr; gap: 15px; }
+.country-flag { font-size: 42px; }
+.country-grid h3 { margin: 0; font: 600 19px 'Space Grotesk'; }
+.country-grid p, .country-grid small { color: var(--muted); margin: 5px 0; }
+.country-grid details { grid-column: 2; font-size: 12px; }
+.country-grid summary { font-weight: 700; cursor: pointer; }
+@media (max-width: 1000px) { .medal-grid { grid-template-columns: repeat(2, 1fr); } .dashboard-stats { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 760px) {
   .nav-links > a { display: none; }
   .hero { padding: 60px 6vw 110px; min-height: 690px; }
@@ -201,4 +230,8 @@ h1 em { color: var(--orange); font-style: normal; }
   .race-list article { grid-template-columns: 60px 1fr; }
   .race-list > article > strong, .race-list .privacy-pill { grid-column: 2; }
   .medal-grid { grid-template-columns: 1fr; }
+  .geo-stats { grid-template-columns: 1fr; }
+  .geo-stats article { border-right: 0; border-bottom: 1px solid #cbc9bf; }
+  .country-grid { grid-template-columns: 1fr; }
+  .world-map { height: 330px; }
 }

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 if TYPE_CHECKING:
+    from app.models.location import Location
     from app.models.race import Race
     from app.models.user import User
 
@@ -39,6 +40,9 @@ class Activity(Base):
     timezone: Mapped[str | None] = mapped_column(String(100))
     start_latitude: Mapped[float | None] = mapped_column(Float)
     start_longitude: Mapped[float | None] = mapped_column(Float)
+    location_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("locations.id", ondelete="SET NULL"), index=True
+    )
     summary_polyline: Mapped[str | None] = mapped_column(String)
     is_commute: Mapped[bool] = mapped_column(Boolean, default=False)
     is_manual: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -51,4 +55,5 @@ class Activity(Base):
     )
 
     user: Mapped["User"] = relationship(back_populates="activities")
+    location: Mapped["Location | None"] = relationship(back_populates="activities")
     race: Mapped["Race | None"] = relationship(back_populates="activity")

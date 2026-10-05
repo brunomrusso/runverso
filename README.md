@@ -75,4 +75,4 @@ Os tokens do Strava são criptografados antes de serem persistidos. Use valores 
 
 ## Estado atual
 
-A aplicação contém landing page responsiva, login Google/Strava, sessões persistidas por cookie seguro, onboarding, perfil, configurações de privacidade, importação paginada do Strava, confirmação de provas e porta-medalhas digital. Fotos são validadas, reprocessadas, armazenadas localmente e entregues apenas após autenticação; atividades, provas e medalhas permanecem privadas por padrão. As credenciais OAuth não são versionadas.
+A aplicação contém landing page responsiva, login Google/Strava, sessões persistidas por cookie seguro, onboarding, perfil, importação paginada do Strava, confirmação de provas, porta-medalhas e passaporte geográfico. A geocodificação é executada offline e o mapa utiliza apenas centroides aproximados de cidades, sem expor coordenadas ou rotas originais. Fotos são validadas e entregues somente após autenticação; atividades, provas e medalhas permanecem privadas por padrão.
