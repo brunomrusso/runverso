@@ -84,8 +84,16 @@ async def strava_link(request: Request, user: User = Depends(get_current_user)) 
 async def strava_callback(request: Request, db: Session = Depends(get_db)) -> Response:
     ensure_provider("strava")
     token = await oauth.strava.authorize_access_token(request)
+    if "athlete" not in token and token.get("access_token"):
+        async with httpx.AsyncClient(timeout=10) as client:
+            athlete_response = await client.get(
+                "https://www.strava.com/api/v3/athlete",
+                headers={"Authorization": f"Bearer {token['access_token']}"},
+            )
+        if athlete_response.is_success:
+            token["athlete"] = athlete_response.json()
     if "athlete" not in token:
-        raise HTTPException(status_code=400, detail="O Strava não retornou os dados do atleta")
+        raise HTTPException(status_code=502, detail="Não foi possível consultar o atleta no Strava")
     link_user_id = request.session.pop("strava_link_user_id", None)
     target_user = db.get(User, uuid.UUID(link_user_id)) if link_user_id else None
     active_session = find_session(
