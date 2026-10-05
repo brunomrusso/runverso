@@ -67,7 +67,7 @@ export default function ActivitiesPage() {
     <main className="dashboard-shell">
       <aside className="dashboard-sidebar">
         <a className="brand" href="/">RUNNE<span>VERSO</span></a>
-        <nav className="side-nav"><a href="/dashboard">Visão geral</a><a href="#">Minhas provas</a><a href="#">Porta-medalhas</a><a href="#">Mapa da corrida</a><a className="active" href="/atividades">Atividades</a></nav>
+        <nav className="side-nav"><a href="/dashboard">Visão geral</a><a href="/provas">Minhas provas</a><a href="#">Porta-medalhas</a><a href="#">Mapa da corrida</a><a className="active" href="/atividades">Atividades</a></nav>
       </aside>
       <section className="dashboard-main activities-main">
         <header className="activities-header">

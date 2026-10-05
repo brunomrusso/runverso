@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.models.auth import AuthIdentity, StravaConnection, UserSession
     from app.models.privacy import PrivacySettings
     from app.models.profile import Profile
+    from app.models.race import Race
 
 
 class User(Base):
@@ -40,5 +41,8 @@ class User(Base):
         back_populates="user", cascade="all, delete-orphan"
     )
     activities: Mapped[list["Activity"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    races: Mapped[list["Race"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )

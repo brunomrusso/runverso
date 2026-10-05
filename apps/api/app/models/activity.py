@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 if TYPE_CHECKING:
+    from app.models.race import Race
     from app.models.user import User
 
 
@@ -24,6 +25,12 @@ class Activity(Base):
     external_id: Mapped[str] = mapped_column(String(100))
     name: Mapped[str] = mapped_column(String(300))
     sport_type: Mapped[str] = mapped_column(String(50))
+    workout_type: Mapped[int | None] = mapped_column(Integer)
+    race_candidate_status: Mapped[str] = mapped_column(String(20), default="pending")
+    suggested_category: Mapped[str | None] = mapped_column(String(30))
+    suggestion_confidence: Mapped[str | None] = mapped_column(String(20))
+    suggestion_score: Mapped[int] = mapped_column(Integer, default=0)
+    suggestion_reasons: Mapped[list[str]] = mapped_column(JSONB, default=list)
     distance_meters: Mapped[float] = mapped_column(Float)
     moving_time_seconds: Mapped[int] = mapped_column(Integer)
     elapsed_time_seconds: Mapped[int] = mapped_column(Integer)
@@ -44,3 +51,4 @@ class Activity(Base):
     )
 
     user: Mapped["User"] = relationship(back_populates="activities")
+    race: Mapped["Race | None"] = relationship(back_populates="activity")

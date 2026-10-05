@@ -115,6 +115,34 @@ h1 em { color: var(--orange); font-style: normal; }
 .activity-metric strong { font: 600 18px 'Space Grotesk'; }
 .activity-metric span { color: var(--muted); font-size: 11px; }
 .privacy-pill { border: 1px solid #aaa99f; border-radius: 999px; padding: 6px 10px; font-size: 11px; text-align: center; }
+.races-main { max-width: 1500px; width: 100%; }
+.race-tabs { display: flex; gap: 28px; border-bottom: 1px solid #cbc9bf; margin-bottom: 8px; }
+.race-tabs button { border: 0; background: none; padding: 15px 0; color: var(--muted); font-weight: 700; cursor: pointer; }
+.race-tabs button.active { color: var(--ink); border-bottom: 3px solid var(--orange); }
+.race-tabs b { background: #d8d6cd; border-radius: 999px; padding: 2px 7px; margin-left: 4px; }
+.race-form { border: 1px solid #cbc9bf; padding: 28px; display: grid; gap: 16px; margin-bottom: 28px; }
+.race-form h2 { font: 600 28px 'Space Grotesk'; margin: 0 0 5px; }
+.race-form label { display: grid; gap: 7px; font-size: 12px; font-weight: 700; }
+.race-form input, .race-form select { border: 0; border-bottom: 1px solid #aaa99f; background: transparent; padding: 10px 2px; font: 500 15px 'DM Sans'; }
+.race-form .button { justify-self: start; }
+.suggestion-list article { display: grid; grid-template-columns: 70px minmax(300px, 1fr) auto; gap: 24px; padding: 25px 10px; border-bottom: 1px solid #cbc9bf; align-items: start; }
+.confidence { font-size: 10px; font-weight: 800; text-align: center; padding: 7px 4px; border: 1px solid var(--ink); }
+.confidence.high { background: var(--lime); }
+.confidence.medium { background: #ffd233; }
+.confidence.low { background: transparent; }
+.suggestion-title small { color: var(--orange); font-weight: 700; letter-spacing: 1px; }
+.suggestion-title h2 { font: 600 21px 'Space Grotesk'; margin: 5px 0; }
+.suggestion-title p { color: var(--muted); font-size: 12px; }
+.suggestion-title ul { padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+.suggestion-title li { background: #dedcd3; padding: 5px 8px; font-size: 11px; }
+.suggestion-actions { display: grid; gap: 10px; justify-items: stretch; }
+.suggestion-actions .button { padding: 10px 15px; box-shadow: none; }
+.suggestion-actions > button:last-child { border: 0; background: none; color: var(--muted); cursor: pointer; }
+.race-list article { display: grid; grid-template-columns: 70px 1fr 130px 75px; gap: 20px; align-items: center; padding: 22px 10px; border-bottom: 1px solid #cbc9bf; }
+.race-category { background: var(--orange); padding: 13px 8px; text-align: center; font-weight: 800; }
+.race-list h2 { font: 600 20px 'Space Grotesk'; margin: 0 0 5px; }
+.race-list p { margin: 0; color: var(--muted); font-size: 12px; }
+.race-list > article > strong { font: 600 19px 'Space Grotesk'; }
 @media (max-width: 760px) {
   .nav-links > a { display: none; }
   .hero { padding: 60px 6vw 110px; min-height: 690px; }
@@ -141,4 +169,8 @@ h1 em { color: var(--orange); font-style: normal; }
   .activity-metric, .privacy-pill { grid-column: 2; }
   .activities-summary { flex-wrap: wrap; }
   .activities-summary small { width: 100%; margin: 0; }
+  .suggestion-list article { grid-template-columns: 55px 1fr; }
+  .suggestion-actions { grid-column: 2; }
+  .race-list article { grid-template-columns: 60px 1fr; }
+  .race-list > article > strong, .race-list .privacy-pill { grid-column: 2; }
 }

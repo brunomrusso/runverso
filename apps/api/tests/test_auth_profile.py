@@ -21,6 +21,7 @@ from app.models import (
     UserSession,
 )
 from app.services.oauth import find_or_create_strava_user
+from app.services.races import classify_activity
 
 
 @pytest.fixture
@@ -175,6 +176,47 @@ def test_activity_stats_are_private_to_authenticated_user(
     assert activities.status_code == 200
     assert activities.json()["items"][0]["local_visibility"] == "private"
     assert TestClient(app).get("/activities").status_code == 401
+
+
+def test_strava_race_tag_creates_high_confidence_suggestion(
+    db: Session, authenticated_client: TestClient
+) -> None:
+    user = db.scalar(select(User).where(User.email == "runner@example.com"))
+    activity = Activity(
+        user_id=user.id,
+        source="strava",
+        external_id="race-activity",
+        name="Maratona da Cidade",
+        sport_type="Run",
+        workout_type=1,
+        distance_meters=42180,
+        moving_time_seconds=14400,
+        elapsed_time_seconds=14500,
+        elevation_gain=100,
+        started_at=datetime.now(UTC),
+        source_visibility="everyone",
+        local_visibility="private",
+        raw_payload={"id": "race-activity", "workout_type": 1},
+    )
+    classify_activity(activity)
+    db.add(activity)
+    db.commit()
+
+    suggestions = authenticated_client.get("/race-suggestions")
+
+    assert suggestions.status_code == 200
+    suggestion = next(item for item in suggestions.json() if item["id"] == str(activity.id))
+    assert suggestion["confidence"] == "high"
+    assert suggestion["suggested_category"] == "42K"
+    assert "Marcada como prova no Strava" in suggestion["reasons"]
+
+    confirmed = authenticated_client.post(
+        f"/race-suggestions/{activity.id}/confirm",
+        json={"visibility": "private", "country_code": "BR"},
+    )
+    assert confirmed.status_code == 200
+    assert confirmed.json()["category"] == "42K"
+    assert authenticated_client.get("/races/count").json() == {"total": 1}
 
 
 def test_public_profile_hides_real_name_by_default(authenticated_client: TestClient) -> None:

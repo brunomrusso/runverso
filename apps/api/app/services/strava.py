@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.models import Activity, StravaConnection, User
+from app.services.races import classify_activity
 from app.services.tokens import decrypt_token, encrypt_token
 
 settings = get_settings()
@@ -41,6 +42,7 @@ def _activity_values(payload: dict[str, Any]) -> dict[str, Any]:
     return {
         "name": payload.get("name") or "Corrida sem título",
         "sport_type": payload.get("sport_type") or payload.get("type") or "Run",
+        "workout_type": payload.get("workout_type"),
         "distance_meters": float(payload.get("distance") or 0),
         "moving_time_seconds": int(payload.get("moving_time") or 0),
         "elapsed_time_seconds": int(payload.get("elapsed_time") or 0),
@@ -112,17 +114,18 @@ async def sync_strava_activities(db: Session, user: User, full: bool = False) ->
                     if activity:
                         for field, value in values.items():
                             setattr(activity, field, value)
+                        classify_activity(activity)
                         updated += 1
                     else:
-                        db.add(
-                            Activity(
-                                user_id=user.id,
-                                source="strava",
-                                external_id=external_id,
-                                local_visibility="private",
-                                **values,
-                            )
+                        activity = Activity(
+                            user_id=user.id,
+                            source="strava",
+                            external_id=external_id,
+                            local_visibility="private",
+                            **values,
                         )
+                        classify_activity(activity)
+                        db.add(activity)
                         imported += 1
                 db.commit()
                 if len(payloads) < 100:
