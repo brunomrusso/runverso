@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     strava_client_secret: str = ""
     strava_sync_max_pages: int = 20
     token_encryption_secret: str = "change-me-in-local-env"
+    upload_directory: str = "/app/storage/uploads"
+    max_upload_bytes: int = 10 * 1024 * 1024
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

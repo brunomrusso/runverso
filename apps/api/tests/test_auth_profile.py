@@ -1,9 +1,11 @@
 import hashlib
+import io
 from collections.abc import Generator
 from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
+from PIL import Image
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -217,6 +219,43 @@ def test_strava_race_tag_creates_high_confidence_suggestion(
     assert confirmed.status_code == 200
     assert confirmed.json()["category"] == "42K"
     assert authenticated_client.get("/races/count").json() == {"total": 1}
+
+
+def test_medal_photo_is_private_and_thumbnail_is_generated(
+    authenticated_client: TestClient,
+) -> None:
+    race = authenticated_client.post(
+        "/races",
+        json={
+            "event_name": "Corrida Medalha",
+            "race_date": "2026-01-10",
+            "category": "5K",
+            "official_distance_meters": 5000,
+            "country_code": "BR",
+            "visibility": "private",
+        },
+    ).json()
+    medal_response = authenticated_client.post(
+        "/medals",
+        json={"race_id": race["id"], "title": "Minha medalha", "visibility": "private"},
+    )
+    assert medal_response.status_code == 201
+    medal = medal_response.json()
+    image_bytes = io.BytesIO()
+    Image.new("RGB", (800, 600), "orange").save(image_bytes, format="JPEG")
+
+    upload = authenticated_client.post(
+        f"/medals/{medal['id']}/photos",
+        data={"kind": "front"},
+        files={"photo": ("medal.jpg", image_bytes.getvalue(), "image/jpeg")},
+    )
+
+    assert upload.status_code == 200
+    photo = upload.json()["photos"][0]
+    assert authenticated_client.get(photo["thumbnail_url"]).status_code == 200
+    assert TestClient(app).get(photo["thumbnail_url"]).status_code == 401
+    assert authenticated_client.get("/medals/count").json() == {"total": 1}
+    assert authenticated_client.delete(f"/medals/{medal['id']}").status_code == 204
 
 
 def test_public_profile_hides_real_name_by_default(authenticated_client: TestClient) -> None:

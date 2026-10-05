@@ -10,6 +10,7 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.models.activity import Activity
+    from app.models.medal import Medal
     from app.models.user import User
 
 
@@ -44,3 +45,6 @@ class Race(Base):
 
     user: Mapped["User"] = relationship(back_populates="races")
     activity: Mapped["Activity | None"] = relationship(back_populates="race")
+    medal: Mapped["Medal | None"] = relationship(
+        back_populates="race", cascade="all, delete-orphan"
+    )

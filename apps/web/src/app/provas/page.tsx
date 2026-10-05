@@ -30,6 +30,7 @@ export default function RacesPage() {
   const [races, setRaces] = useState<Race[]>([]);
   const [tab, setTab] = useState<"races" | "suggestions">("suggestions");
   const [manual, setManual] = useState(false);
+  const [editing, setEditing] = useState<Suggestion | null>(null);
   const [message, setMessage] = useState("");
 
   const load = useCallback(async () => {
@@ -44,12 +45,20 @@ export default function RacesPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  async function confirm(suggestion: Suggestion) {
-    const response = await fetch(`${apiUrl}/race-suggestions/${suggestion.id}/confirm`, {
+  async function confirm(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!editing) return;
+    const form = new FormData(event.currentTarget);
+    const response = await fetch(`${apiUrl}/race-suggestions/${editing.id}/confirm`, {
       method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ visibility: "private", country_code: "BR" }),
+      body: JSON.stringify({
+        event_name: form.get("event_name"), category: form.get("category"),
+        net_time_seconds: parseDuration(String(form.get("net_time"))), city: form.get("city") || null,
+        state: form.get("state") || null, visibility: "private", country_code: "BR",
+      }),
     });
     setMessage(response.ok ? "Prova confirmada e mantida privada." : "Não foi possível confirmar.");
+    if (response.ok) setEditing(null);
     await load();
   }
 
@@ -78,13 +87,14 @@ export default function RacesPage() {
   }
 
   return <main className="dashboard-shell">
-    <aside className="dashboard-sidebar"><a className="brand" href="/">RUNNE<span>VERSO</span></a><nav className="side-nav"><a href="/dashboard">Visão geral</a><a className="active" href="/provas">Minhas provas</a><a href="#">Porta-medalhas</a><a href="#">Mapa da corrida</a><a href="/atividades">Atividades</a></nav></aside>
+    <aside className="dashboard-sidebar"><a className="brand" href="/">RUNNE<span>VERSO</span></a><nav className="side-nav"><a href="/dashboard">Visão geral</a><a className="active" href="/provas">Minhas provas</a><a href="/medalhas">Porta-medalhas</a><a href="#">Mapa da corrida</a><a href="/atividades">Atividades</a></nav></aside>
     <section className="dashboard-main races-main">
       <header className="activities-header"><div><span>PASSAPORTE DE CORRIDAS</span><h1>Minhas provas.</h1><p>Confirme sugestões do Strava ou registre uma prova manualmente.</p></div><button className="button" onClick={() => setManual(!manual)}>Cadastrar prova</button></header>
       {message && <div className="sync-message">{message}</div>}
       {manual && <form className="race-form" onSubmit={createManual}><h2>Nova prova</h2><label>Nome da prova<input name="event_name" required /></label><div className="form-row"><label>Data<input name="race_date" type="date" required /></label><label>Categoria<select name="category"><option>5K</option><option>10K</option><option>15K</option><option>21K</option><option>42K</option><option>ULTRA</option><option>OTHER</option></select></label></div><label>Distância em km <small>preencha somente para “OTHER”</small><input name="distance_km" type="number" step="0.01" /></label><label>Tempo líquido <small>HH:MM:SS</small><input name="net_time" placeholder="00:50:00" /></label><div className="form-row"><label>Cidade<input name="city" /></label><label>Estado<input name="state" /></label></div><button className="button" type="submit">Salvar prova</button></form>}
+      {editing && <form className="race-form confirm-form" onSubmit={confirm}><h2>Confirmar prova</h2><p>Revise os dados antes de transformar a atividade em prova.</p><label>Nome oficial<input name="event_name" defaultValue={editing.name} required /></label><div className="form-row"><label>Categoria<select name="category" defaultValue={editing.suggested_category ?? "OTHER"}><option>5K</option><option>10K</option><option>15K</option><option>21K</option><option>42K</option><option>ULTRA</option><option>OTHER</option></select></label><label>Tempo líquido <small>HH:MM:SS</small><input name="net_time" defaultValue={duration(editing.moving_time_seconds)} /></label></div><div className="form-row"><label>Cidade<input name="city" /></label><label>Estado<input name="state" /></label></div><div className="confirm-actions"><button className="button" type="submit">Confirmar como prova</button><button type="button" onClick={() => setEditing(null)}>Cancelar</button></div></form>}
       <div className="race-tabs"><button className={tab === "suggestions" ? "active" : ""} onClick={() => setTab("suggestions")}>Sugestões <b>{suggestions.length}</b></button><button className={tab === "races" ? "active" : ""} onClick={() => setTab("races")}>Confirmadas <b>{races.length}</b></button></div>
-      {tab === "suggestions" && <div className="suggestion-list">{suggestions.length === 0 ? <section className="empty-state"><h2>Nenhuma sugestão pendente</h2></section> : suggestions.map((item) => <article key={item.id}><div className={`confidence ${item.confidence}`}>{item.confidence === "high" ? "ALTA" : item.confidence === "medium" ? "MÉDIA" : "BAIXA"}</div><div className="suggestion-title"><small>{item.suggested_category ?? "OUTRA DISTÂNCIA"}</small><h2>{item.name}</h2><p>{new Date(item.started_at).toLocaleDateString("pt-BR")} · {(item.distance_meters / 1000).toFixed(2)} km · {duration(item.moving_time_seconds)}</p><ul>{item.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul></div><div className="suggestion-actions"><button className="button" onClick={() => confirm(item)}>Confirmar prova</button><button onClick={() => reject(item.id)}>Não é prova</button></div></article>)}</div>}
+      {tab === "suggestions" && <div className="suggestion-list">{suggestions.length === 0 ? <section className="empty-state"><h2>Nenhuma sugestão pendente</h2></section> : suggestions.map((item) => <article key={item.id}><div className={`confidence ${item.confidence}`}>{item.confidence === "high" ? "ALTA" : item.confidence === "medium" ? "MÉDIA" : "BAIXA"}</div><div className="suggestion-title"><small>{item.suggested_category ?? "OUTRA DISTÂNCIA"}</small><h2>{item.name}</h2><p>{new Date(item.started_at).toLocaleDateString("pt-BR")} · {(item.distance_meters / 1000).toFixed(2)} km · {duration(item.moving_time_seconds)}</p><ul>{item.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul></div><div className="suggestion-actions"><button className="button" onClick={() => { setEditing(item); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Revisar e confirmar</button><button onClick={() => reject(item.id)}>Não é prova</button></div></article>)}</div>}
       {tab === "races" && <div className="race-list">{races.length === 0 ? <section className="empty-state"><h2>Nenhuma prova confirmada</h2></section> : races.map((race) => <article key={race.id}><div className="race-category">{race.category}</div><div><h2>{race.event_name}</h2><p>{new Date(`${race.race_date}T12:00:00`).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}{race.city ? ` · ${race.city}${race.state ? `, ${race.state}` : ""}` : ""}</p></div><strong>{duration(race.net_time_seconds)}</strong><span className="privacy-pill">Privada</span></article>)}</div>}
     </section>
   </main>;

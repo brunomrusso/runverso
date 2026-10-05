@@ -125,6 +125,10 @@ h1 em { color: var(--orange); font-style: normal; }
 .race-form label { display: grid; gap: 7px; font-size: 12px; font-weight: 700; }
 .race-form input, .race-form select { border: 0; border-bottom: 1px solid #aaa99f; background: transparent; padding: 10px 2px; font: 500 15px 'DM Sans'; }
 .race-form .button { justify-self: start; }
+.confirm-form { border-color: var(--orange); box-shadow: 5px 5px 0 var(--orange); }
+.confirm-form > p { color: var(--muted); margin-top: -8px; }
+.confirm-actions { display: flex; align-items: center; gap: 18px; }
+.confirm-actions > button:last-child { border: 0; background: none; cursor: pointer; text-decoration: underline; }
 .suggestion-list article { display: grid; grid-template-columns: 70px minmax(300px, 1fr) auto; gap: 24px; padding: 25px 10px; border-bottom: 1px solid #cbc9bf; align-items: start; }
 .confidence { font-size: 10px; font-weight: 800; text-align: center; padding: 7px 4px; border: 1px solid var(--ink); }
 .confidence.high { background: var(--lime); }
@@ -143,6 +147,27 @@ h1 em { color: var(--orange); font-style: normal; }
 .race-list h2 { font: 600 20px 'Space Grotesk'; margin: 0 0 5px; }
 .race-list p { margin: 0; color: var(--muted); font-size: 12px; }
 .race-list > article > strong { font: 600 19px 'Space Grotesk'; }
+.race-form textarea { border: 1px solid #aaa99f; background: transparent; padding: 10px; font: 500 15px 'DM Sans'; resize: vertical; }
+.medals-main { max-width: 1500px; width: 100%; }
+.medal-shelf { margin-top: 45px; }
+.medal-shelf > header { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
+.medal-shelf > header h2 { font: 700 35px 'Space Grotesk'; margin: 0; }
+.medal-shelf > header span { color: var(--muted); font-size: 13px; }
+.medal-grid { display: grid; grid-template-columns: repeat(4, minmax(180px, 1fr)); gap: 18px; padding-top: 20px; }
+.medal-grid article { border: 1px solid #cbc9bf; background: #f4f1e8; }
+.medal-grid article.favorite { border-color: var(--orange); box-shadow: 4px 4px 0 var(--orange); }
+.medal-image { aspect-ratio: 1; background: #dcdbd3; position: relative; display: grid; place-items: center; overflow: hidden; }
+.medal-image img { width: 100%; height: 100%; object-fit: cover; }
+.medal-image > span { color: var(--muted); font: 700 12px 'Space Grotesk'; letter-spacing: 1px; }
+.medal-image button { position: absolute; top: 10px; right: 10px; width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--ink); background: var(--paper); font-size: 20px; cursor: pointer; }
+.medal-info { padding: 18px; display: grid; gap: 8px; }
+.medal-info small { color: var(--orange); font-weight: 700; }
+.medal-info h3 { font: 600 19px 'Space Grotesk'; margin: 0; }
+.medal-info p { color: var(--muted); margin: 0; font-size: 12px; }
+.photo-action { margin-top: 8px; color: var(--ink); font-size: 12px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.photo-action input { display: none; }
+.medal-info .privacy-pill { justify-self: start; }
+@media (max-width: 1000px) { .medal-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 760px) {
   .nav-links > a { display: none; }
   .hero { padding: 60px 6vw 110px; min-height: 690px; }
@@ -173,4 +198,5 @@ h1 em { color: var(--orange); font-style: normal; }
   .suggestion-actions { grid-column: 2; }
   .race-list article { grid-template-columns: 60px 1fr; }
   .race-list > article > strong, .race-list .privacy-pill { grid-column: 2; }
+  .medal-grid { grid-template-columns: 1fr; }
 }

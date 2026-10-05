@@ -75,4 +75,4 @@ Os tokens do Strava são criptografados antes de serem persistidos. Use valores 
 
 ## Estado atual
 
-A aplicação contém landing page responsiva, login Google/Strava, sessões persistidas por cookie seguro, onboarding, perfil, configurações de privacidade e importação paginada e idempotente das atividades de corrida do Strava. Tokens expirados são renovados automaticamente e toda atividade importada permanece privada no Runneverso por padrão. As credenciais OAuth não são versionadas.
+A aplicação contém landing page responsiva, login Google/Strava, sessões persistidas por cookie seguro, onboarding, perfil, configurações de privacidade, importação paginada do Strava, confirmação de provas e porta-medalhas digital. Fotos são validadas, reprocessadas, armazenadas localmente e entregues apenas após autenticação; atividades, provas e medalhas permanecem privadas por padrão. As credenciais OAuth não são versionadas.
