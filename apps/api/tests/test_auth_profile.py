@@ -23,7 +23,7 @@ from app.models import (
     UserSession,
 )
 from app.services.oauth import find_or_create_strava_user
-from app.services.races import classify_activity
+from app.services.races import classify_activity, distance_category
 
 
 @pytest.fixture
@@ -219,6 +219,12 @@ def test_strava_race_tag_creates_high_confidence_suggestion(
     assert confirmed.status_code == 200
     assert confirmed.json()["category"] == "42K"
     assert authenticated_client.get("/races/count").json() == {"total": 1}
+
+
+def test_marathon_gps_overage_is_not_classified_as_ultra() -> None:
+    assert distance_category(42278).name == "42K"
+    assert distance_category(44200).name == "42K"
+    assert distance_category(50000).name == "ULTRA"
 
 
 def test_medal_photo_is_private_and_thumbnail_is_generated(

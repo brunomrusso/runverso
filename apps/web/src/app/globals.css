@@ -147,6 +147,8 @@ h1 em { color: var(--orange); font-style: normal; }
 .race-list h2 { font: 600 20px 'Space Grotesk'; margin: 0 0 5px; }
 .race-list p { margin: 0; color: var(--muted); font-size: 12px; }
 .race-list > article > strong { font: 600 19px 'Space Grotesk'; }
+.race-row-actions { display: grid; gap: 7px; }
+.race-row-actions button { border: 0; background: none; text-decoration: underline; cursor: pointer; font-size: 11px; }
 .race-form textarea { border: 1px solid #aaa99f; background: transparent; padding: 10px; font: 500 15px 'DM Sans'; resize: vertical; }
 .medals-main { max-width: 1500px; width: 100%; }
 .medal-shelf { margin-top: 45px; }

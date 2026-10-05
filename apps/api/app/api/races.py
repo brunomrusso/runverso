@@ -169,12 +169,16 @@ def update_race(
     user: User = Depends(get_current_user),
 ) -> Race:
     race = owned_race(db, user, race_id)
-    for field, value in payload.model_dump(exclude_unset=True).items():
+    changes = payload.model_dump(exclude_unset=True)
+    for field, value in changes.items():
         if field == "result_url" and value is not None:
             value = str(value)
         if field == "country_code" and value is not None:
             value = value.upper()
         setattr(race, field, value)
+    if payload.category and "official_distance_meters" not in changes:
+        fallback = race.recorded_distance_meters or race.official_distance_meters
+        race.official_distance_meters = official_distance(payload.category, fallback)
     db.commit()
     db.refresh(race)
     return race

@@ -16,8 +16,8 @@ CATEGORIES = [
     DistanceCategory("10K", 10000, 9500, 10600),
     DistanceCategory("15K", 15000, 14300, 15800),
     DistanceCategory("21K", 21097.5, 20000, 22200),
-    DistanceCategory("42K", 42195, 40000, 42500),
-    DistanceCategory("ULTRA", 50000, 42500, None),
+    DistanceCategory("42K", 42195, 40000, 44500),
+    DistanceCategory("ULTRA", 50000, 44500, None),
 ]
 EVENT_KEYWORDS = {
     "prova",
