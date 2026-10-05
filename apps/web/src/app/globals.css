@@ -194,6 +194,13 @@ h1 em { color: var(--orange); font-style: normal; }
 .country-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 .country-grid article { border: 1px solid #cbc9bf; padding: 18px; display: grid; grid-template-columns: 60px 1fr; gap: 15px; }
 .country-flag { font-size: 42px; }
+.country-flag .fi { width: 48px; height: 34px; border: 1px solid #bbb9b0; box-shadow: 2px 2px 0 var(--ink); }
+.leaflet-running-map { width: 100%; height: 100%; z-index: 1; }
+.leaflet-container { font-family: 'DM Sans', sans-serif; background: #d9e2d0; }
+.run-map-marker { background: var(--lime); border: 2px solid var(--ink); border-radius: 50%; display: grid; place-items: center; box-shadow: 2px 2px 0 var(--ink); }
+.run-map-marker span { font-size: 10px; font-weight: 800; }
+.leaflet-popup-content p { margin: 5px 0 0; color: #666; }
+.leaflet-control-attribution { font-size: 9px; }
 .country-grid h3 { margin: 0; font: 600 19px 'Space Grotesk'; }
 .country-grid p, .country-grid small { color: var(--muted); margin: 5px 0; }
 .country-grid details { grid-column: 2; font-size: 12px; }

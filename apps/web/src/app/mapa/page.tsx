@@ -3,19 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { RunningMap } from "@/components/map/running-map";
+
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 type Country = { country_code: string; country: string; count: number; distance_meters: number; states: string[]; cities: string[]; state_count: number; city_count: number };
 type Point = { country_code: string; state: string | null; city: string | null; latitude: number; longitude: number; count: number };
 type Summary = { mode: "training" | "races"; country_count: number; state_count: number; city_count: number; countries: Country[]; points: Point[] };
-
-function flag(code: string) {
-  if (!/^[A-Z]{2}$/.test(code)) return "●";
-  return String.fromCodePoint(...[...code].map((letter) => 127397 + letter.charCodeAt(0)));
-}
-
-function pointPosition(point: Point) {
-  return { left: `${((point.longitude + 180) / 360) * 100}%`, top: `${((90 - point.latitude) / 180) * 100}%` };
-}
 
 export default function MapPage() {
   const router = useRouter();
@@ -48,13 +41,11 @@ export default function MapPage() {
       {message && <div className="sync-message">{message}</div>}
       <div className="map-mode"><button className={mode === "training" ? "active" : ""} onClick={() => setMode("training")}>Treinos</button><button className={mode === "races" ? "active" : ""} onClick={() => setMode("races")}>Provas</button></div>
       <div className="geo-stats"><article><strong>{summary?.country_count ?? 0}</strong><span>Países</span></article><article><strong>{summary?.state_count ?? 0}</strong><span>Estados e regiões</span></article><article><strong>{summary?.city_count ?? 0}</strong><span>Cidades</span></article></div>
-      <section className="world-map" aria-label="Mapa aproximado dos lugares onde você correu">
-        <div className="world-grid" />
-        <div className="continent americas" /><div className="continent europe" /><div className="continent africa" /><div className="continent asia" /><div className="continent oceania" />
-        {summary?.points.map((point) => <button key={`${point.country_code}-${point.state}-${point.city}`} className="map-point" style={pointPosition(point)} title={`${point.city ?? point.state ?? point.country_code}: ${point.count}`}><span>{point.count}</span></button>)}
+      <section className="world-map" aria-label="Mapa dos lugares onde você correu">
+        <RunningMap points={summary?.points ?? []} mode={mode} />
         {!summary?.points.length && <div className="map-empty">Clique em “Atualizar locais” para construir seu mapa.</div>}
       </section>
-      <section className="country-passport"><h2>Bandeiras conquistadas</h2><div className="country-grid">{summary?.countries.map((country) => <article key={country.country_code}><div className="country-flag">{flag(country.country_code)}</div><div><h3>{country.country}</h3><p>{country.count} {mode === "training" ? "atividades" : "provas"} · {(country.distance_meters / 1000).toFixed(0)} km</p><small>{country.state_count} estados/regiões · {country.city_count} cidades</small></div><details><summary>Ver lugares</summary><p>{country.cities.slice(0, 30).join(" · ") || "Cidades não informadas"}</p></details></article>)}</div></section>
+      <section className="country-passport"><h2>Bandeiras conquistadas</h2><div className="country-grid">{summary?.countries.map((country) => <article key={country.country_code}><div className="country-flag"><span className={`fi fi-${country.country_code.toLowerCase()}`} aria-label={`Bandeira de ${country.country}`} /></div><div><h3>{country.country}</h3><p>{country.count} {mode === "training" ? "atividades" : "provas"} · {(country.distance_meters / 1000).toFixed(0)} km</p><small>{country.state_count} estados/regiões · {country.city_count} cidades</small></div><details><summary>Ver lugares</summary><p>{country.cities.slice(0, 30).join(" · ") || "Cidades não informadas"}</p></details></article>)}</div></section>
     </section>
   </main>;
 }
