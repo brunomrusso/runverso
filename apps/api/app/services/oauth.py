@@ -25,7 +25,10 @@ oauth.register(
     client_secret=settings.strava_client_secret,
     authorize_url="https://www.strava.com/oauth/authorize",
     access_token_url="https://www.strava.com/oauth/token",
-    client_kwargs={"scope": "read,activity:read"},
+    client_kwargs={
+        "scope": "read,activity:read",
+        "token_endpoint_auth_method": "client_secret_post",
+    },
 )
 
 
