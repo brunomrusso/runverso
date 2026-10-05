@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 if TYPE_CHECKING:
+    from app.models.activity import Activity
     from app.models.auth import AuthIdentity, StravaConnection, UserSession
     from app.models.privacy import PrivacySettings
     from app.models.profile import Profile
@@ -36,5 +37,8 @@ class User(Base):
         back_populates="user", cascade="all, delete-orphan"
     )
     strava_connection: Mapped["StravaConnection | None"] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    activities: Mapped[list["Activity"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )

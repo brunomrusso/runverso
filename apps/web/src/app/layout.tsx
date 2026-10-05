@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Runverso — Sua história na corrida",
+  title: "Runneverso — Sua história na corrida",
   description: "Provas, medalhas, mapas e histórias de quem corre.",
 };
 

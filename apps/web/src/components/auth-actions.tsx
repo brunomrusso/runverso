@@ -16,18 +16,18 @@ export function AuthActions({ compact = false }: { compact?: boolean }) {
   if (compact) {
     return (
       <a className="button button-small" href={authenticated ? "/dashboard" : "/entrar"}>
-        {authenticated ? "Meu Runverso" : "Entrar"}
+        {authenticated ? "Meu Runneverso" : "Entrar"}
       </a>
     );
   }
 
   if (authenticated) {
-    return <a className="button" href="/dashboard">Abrir meu Runverso <b>→</b></a>;
+    return <a className="button" href="/dashboard">Abrir meu Runneverso <b>→</b></a>;
   }
 
   return (
     <>
-      <a className="button" href="/entrar">Criar meu Runverso <b>↗</b></a>
+      <a className="button" href="/entrar">Criar meu Runneverso <b>↗</b></a>
       <a className="button button-ghost" href="/entrar">Conectar com Strava</a>
     </>
   );

@@ -1,8 +1,8 @@
-# Runverso
+# Runneverso
 
 Sua história na corrida, reunida em um único lugar.
 
-O Runverso é uma comunidade para corredores organizarem provas, medalhas, recordes e os lugares onde já correram. O produto terá integração com Strava, porta-medalhas digital, mapas de provas e treinos e controles granulares de privacidade.
+O Runneverso é uma comunidade para corredores organizarem provas, medalhas, recordes e os lugares onde já correram. O produto terá integração com Strava, porta-medalhas digital, mapas de provas e treinos e controles granulares de privacidade.
 
 ## Stack
 
@@ -75,4 +75,4 @@ Os tokens do Strava são criptografados antes de serem persistidos. Use valores 
 
 ## Estado atual
 
-A aplicação contém landing page responsiva, login Google/Strava, sessões persistidas por cookie seguro, onboarding, perfil, configurações de privacidade, PostgreSQL/PostGIS e migrations. As credenciais OAuth não são versionadas.
+A aplicação contém landing page responsiva, login Google/Strava, sessões persistidas por cookie seguro, onboarding, perfil, configurações de privacidade e importação paginada e idempotente das atividades de corrida do Strava. Tokens expirados são renovados automaticamente e toda atividade importada permanece privada no Runneverso por padrão. As credenciais OAuth não são versionadas.

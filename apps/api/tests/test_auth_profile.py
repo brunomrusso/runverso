@@ -12,6 +12,7 @@ from app.db.session import engine
 from app.dependencies.database import get_db
 from app.main import app
 from app.models import (
+    Activity,
     AuthIdentity,
     PrivacySettings,
     Profile,
@@ -140,6 +141,40 @@ def test_strava_already_linked_to_another_user_is_rejected(
 
     with pytest.raises(ValueError, match="outro usuário"):
         find_or_create_strava_user(db, token, target_user=second_user)
+
+
+def test_activity_stats_are_private_to_authenticated_user(
+    db: Session, authenticated_client: TestClient
+) -> None:
+    user = db.scalar(select(User).where(User.email == "runner@example.com"))
+    db.add(
+        Activity(
+            user_id=user.id,
+            source="strava",
+            external_id="activity-1",
+            name="Corrida matinal",
+            sport_type="Run",
+            distance_meters=10000,
+            moving_time_seconds=3600,
+            elapsed_time_seconds=3700,
+            elevation_gain=80,
+            started_at=datetime.now(UTC),
+            source_visibility="everyone",
+            local_visibility="private",
+            raw_payload={"id": "activity-1"},
+        )
+    )
+    db.commit()
+
+    stats = authenticated_client.get("/activities/stats")
+    activities = authenticated_client.get("/activities")
+
+    assert stats.status_code == 200
+    assert stats.json()["total"] == 1
+    assert stats.json()["total_distance_meters"] == 10000
+    assert activities.status_code == 200
+    assert activities.json()["items"][0]["local_visibility"] == "private"
+    assert TestClient(app).get("/activities").status_code == 401
 
 
 def test_public_profile_hides_real_name_by_default(authenticated_client: TestClient) -> None:

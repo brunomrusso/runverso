@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <main>
       <nav>
-        <a className="brand" href="#">RUN<span>VERSO</span></a>
+        <a className="brand" href="#">RUNNE<span>VERSO</span></a>
         <div className="nav-links">
           <a href="#recursos">Recursos</a>
           <a href="#comunidade">Comunidade</a>
@@ -22,7 +22,7 @@ export default function Home() {
 
       <section className="hero">
         <div className="eyebrow"><i /> O universo de quem corre</div>
-        <h1>Sua história.<br /><em>Seu percurso.</em><br />Seu Runverso.</h1>
+        <h1>Sua história.<br /><em>Seu percurso.</em><br />Seu Runneverso.</h1>
         <p>Provas, medalhas, recordes e todos os lugares onde a corrida já levou você — reunidos em um perfil feito para corredores.</p>
         <div className="actions">
           <AuthActions />

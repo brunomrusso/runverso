@@ -57,6 +57,8 @@ class StravaConnection(Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     scopes: Mapped[str] = mapped_column(String(200), default="read,activity:read")
     sync_status: Mapped[str] = mapped_column(String(20), default="pending")
+    sync_error: Mapped[str | None] = mapped_column(String(500))
+    imported_activities: Mapped[int] = mapped_column(default=0)
     last_synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     user: Mapped["User"] = relationship(back_populates="strava_connection")

@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "Runverso API"
+    app_name: str = "Runneverso API"
     environment: str = "local"
     database_url: str = "postgresql+psycopg://runverso:runverso_local@localhost:5432/runverso"
     cors_origins: str = "http://localhost:3000"
@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     google_client_secret: str = ""
     strava_client_id: str = ""
     strava_client_secret: str = ""
+    strava_sync_max_pages: int = 20
     token_encryption_secret: str = "change-me-in-local-env"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

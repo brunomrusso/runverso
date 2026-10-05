@@ -18,7 +18,7 @@ export default function LoginPage() {
 
   return (
     <main className="auth-shell">
-      <a className="brand" href="/">RUN<span>VERSO</span></a>
+      <a className="brand" href="/">RUNNE<span>VERSO</span></a>
       <section className="auth-card">
         <div className="eyebrow"><i /> Entre no seu universo</div>
         <h1>Continue<br /><em>correndo.</em></h1>
@@ -36,7 +36,7 @@ export default function LoginPage() {
             Configure as credenciais Google e Strava no arquivo <code>.env</code> para ativar os logins locais.
           </div>
         )}
-        <small>Ao continuar, você concorda com os termos e a política de privacidade do Runverso.</small>
+        <small>Ao continuar, você concorda com os termos e a política de privacidade do Runneverso.</small>
       </section>
     </main>
   );

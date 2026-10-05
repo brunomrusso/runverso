@@ -41,12 +41,12 @@ export default function OnboardingPage() {
     router.push("/dashboard");
   }
 
-  if (loading) return <main className="onboarding-shell"><p>Preparando seu Runverso…</p></main>;
+  if (loading) return <main className="onboarding-shell"><p>Preparando seu Runneverso…</p></main>;
 
   return (
     <main className="onboarding-shell">
       <section className="onboarding-copy">
-        <a className="brand" href="/">RUN<span>VERSO</span></a>
+        <a className="brand" href="/">RUNNE<span>VERSO</span></a>
         <div><span>PASSO 1 DE 3</span><h1>Como você quer ser<br /><em>reconhecido?</em></h1><p>Você controla o que será público. Seu nome real poderá ficar oculto no perfil.</p></div>
       </section>
       <form className="onboarding-form" onSubmit={submit}>
