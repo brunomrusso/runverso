@@ -10,6 +10,7 @@ from app.api.insights import router as insights_router
 from app.api.medals import router as medals_router
 from app.api.profile import router as profile_router
 from app.api.races import router as races_router
+from app.api.social import router as social_router
 from app.api.status import router as status_router
 from app.core.config import get_settings
 
@@ -36,6 +37,7 @@ app.include_router(insights_router)
 app.include_router(medals_router)
 app.include_router(profile_router)
 app.include_router(races_router)
+app.include_router(social_router)
 app.include_router(status_router)
 
 

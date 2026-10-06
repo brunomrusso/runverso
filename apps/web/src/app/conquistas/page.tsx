@@ -32,7 +32,7 @@ export default function AchievementsPage() {
   }, [router]);
 
   return <main className="dashboard-shell">
-    <aside className="dashboard-sidebar"><a className="brand" href="/">RUNNE<span>VERSO</span></a><nav className="side-nav"><a href="/dashboard">Visão geral</a><a href="/provas">Minhas provas</a><a href="/medalhas">Porta-medalhas</a><a href="/mapa">Mapa da corrida</a><a href="/atividades">Atividades</a><a className="active" href="/conquistas">Recordes</a></nav></aside>
+    <aside className="dashboard-sidebar"><a className="brand" href="/">RUNNE<span>VERSO</span></a><nav className="side-nav"><a href="/dashboard">Visão geral</a><a href="/provas">Minhas provas</a><a href="/medalhas">Porta-medalhas</a><a href="/mapa">Mapa da corrida</a><a href="/atividades">Atividades</a><a className="active" href="/conquistas">Recordes</a><a href="/perfil">Perfil</a></nav></aside>
     <section className="dashboard-main achievements-main">
       <header className="activities-header"><div><span>SEUS MARCOS</span><h1>Recordes e conquistas.</h1><p>Os melhores tempos das suas provas confirmadas e marcos automáticos do seu histórico.</p></div><a className="button" href="/provas">Revisar provas</a></header>
       <div className="geo-stats"><article><strong>{insights?.unlocked_count ?? 0}</strong><span>conquistas abertas</span></article><article><strong>{insights?.records.length ?? 0}</strong><span>recordes registrados</span></article><article><strong>{insights?.total_count ?? 0}</strong><span>metas disponíveis</span></article></div>

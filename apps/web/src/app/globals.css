@@ -152,6 +152,9 @@ h1 em { color: var(--orange); font-style: normal; }
 .race-list > article > strong { font: 600 19px 'Space Grotesk'; }
 .race-row-actions { display: grid; gap: 7px; }
 .race-row-actions button { border: 0; background: none; text-decoration: underline; cursor: pointer; font-size: 11px; }
+.privacy-form > p { margin: 0; color: var(--muted); line-height: 1.5; }
+.check-option { display: flex !important; grid-template-columns: none; align-items: center; gap: 10px; font-size: 14px !important; }
+.check-option input { width: 18px; height: 18px; accent-color: var(--orange); }
 .medal-shelf { margin-top: 45px; }
 .medal-shelf > header { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 12px; }
 .medal-shelf > header h2 { font: 700 35px 'Space Grotesk'; margin: 0; }
@@ -186,6 +189,24 @@ h1 em { color: var(--orange); font-style: normal; }
 .achievement-grid article > div { height: 8px; border-radius: 999px; background: #d2cec1; overflow: hidden; }
 .achievement-grid article > div i { display: block; height: 100%; border-radius: inherit; background: var(--orange); }
 .achievement-grid article > span { display: block; margin-top: 8px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.public-runner { min-height: 100vh; padding-bottom: 70px; background: radial-gradient(circle at 90% 0, rgba(200,255,50,.15), transparent 30%), var(--paper); }
+.public-runner > nav { height: 82px; display: flex; align-items: center; justify-content: space-between; padding: 0 6vw; }
+.runner-hero { margin: 35px auto 22px; width: min(1120px, 88vw); padding: 35px; border-radius: 28px; background: var(--ink); color: var(--paper); display: grid; grid-template-columns: 105px 1fr auto; gap: 28px; align-items: center; box-shadow: 0 18px 45px rgba(17,18,15,.16); }
+.runner-hero span { color: var(--lime); font-weight: 800; font-size: 12px; }
+.runner-hero h1 { font-size: clamp(42px, 6vw, 78px); margin: 10px 0 12px; letter-spacing: -4px; }
+.runner-hero p { color: #c8cabf; max-width: 620px; line-height: 1.6; }
+.runner-hero small { color: #969891; }
+.runner-avatar { width: 105px; height: 105px; border-radius: 32px; background: var(--lime); color: var(--ink); display: grid; place-items: center; font: 700 48px 'Space Grotesk'; overflow: hidden; }
+.runner-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.public-runner > .geo-stats { width: min(1120px, 88vw); margin: 0 auto; }
+.public-sections { width: min(1120px, 88vw); margin: 45px auto 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+.public-sections h2 { font: 600 26px 'Space Grotesk'; margin: 0 0 14px; }
+.public-list { display: grid; gap: 10px; }
+.public-list article { display: grid; grid-template-columns: 60px 1fr; gap: 12px; align-items: center; padding: 15px; border-radius: 17px; background: #e8e5dc; box-shadow: 0 8px 20px rgba(34,35,30,.06); }
+.public-list b { display: grid; place-items: center; min-height: 46px; border-radius: 13px; background: var(--orange); font-size: 11px; }
+.public-list strong { display: block; font: 700 17px 'Space Grotesk'; }
+.public-list span, .public-note { color: var(--muted); font-size: 12px; }
+.public-note { padding: 22px; border-radius: 17px; background: #e8e5dc; margin: 0; font-size: 15px; }
 .map-main { max-width: 1500px; width: 100%; background: radial-gradient(circle at 100% 0, rgba(200,255,50,.12), transparent 28%); }
 .map-main .activities-header { margin-bottom: 28px; }
 .map-main .activities-header h1 { max-width: 760px; }
@@ -269,4 +290,9 @@ h1 em { color: var(--orange); font-style: normal; }
   .world-map { height: 380px; border-radius: 18px; }
   .map-main .activities-header .button { width: 100%; }
   .country-grid article { grid-template-columns: 60px 1fr; padding: 17px; }
+  .runner-hero { grid-template-columns: 74px 1fr; padding: 24px; }
+  .runner-hero > .button { grid-column: 1 / -1; }
+  .runner-avatar { width: 74px; height: 74px; border-radius: 24px; font-size: 34px; }
+  .runner-hero h1 { letter-spacing: -3px; }
+  .public-sections { grid-template-columns: 1fr; }
 }

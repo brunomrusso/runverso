@@ -380,6 +380,39 @@ def test_insights_select_best_race_times_and_unlock_achievements(
     assert TestClient(app).get("/insights").status_code == 401
 
 
+def test_public_profile_overview_respects_privacy(
+    db: Session, authenticated_client: TestClient
+) -> None:
+    user = db.scalar(select(User).where(User.email == "runner@example.com"))
+    user.profile.username = "corredor_publico"
+    user.profile.display_name = "Corredor Público"
+    user.privacy_settings.profile_visibility = "public"
+    user.privacy_settings.races_visibility = "public"
+    user.privacy_settings.medals_visibility = "private"
+    user.privacy_settings.locations_visibility = "private"
+    db.add(
+        Race(
+            user_id=user.id,
+            event_name="10K público",
+            race_date=datetime.now(UTC).date(),
+            category="10K",
+            official_distance_meters=10000,
+            net_time_seconds=3000,
+        )
+    )
+    db.commit()
+
+    response = TestClient(app).get("/community/corredor_publico")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["profile"]["display_name"] == "Corredor Público"
+    assert data["race_count"] == 1
+    assert data["records"][0]["event_name"] == "10K público"
+    assert data["medal_count"] is None
+    assert data["country_count"] is None
+
+
 def test_private_profile_is_not_public(authenticated_client: TestClient) -> None:
     authenticated_client.patch(
         "/me/profile",

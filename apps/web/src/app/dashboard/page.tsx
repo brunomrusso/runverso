@@ -89,11 +89,12 @@ export default function DashboardPage() {
           <a href="/mapa">Mapa da corrida</a>
           <a href="/atividades">Atividades</a>
           <a href="/conquistas">Recordes</a>
+          <a href="/perfil">Perfil</a>
         </nav>
         <button onClick={logout}>Sair</button>
       </aside>
       <section className="dashboard-main">
-        <header className="dashboard-header"><div><span>OLÁ, {runner.profile.username?.toUpperCase()}</span><h1>Bem-vindo ao<br /><em>seu Runneverso.</em></h1></div><div className="avatar">{runner.profile.display_name?.charAt(0).toUpperCase()}</div></header>
+        <header className="dashboard-header"><div><span>OLÁ, {runner.profile.username?.toUpperCase()}</span><h1>Bem-vindo ao<br /><em>seu Runneverso.</em></h1></div><a className="avatar" href={`/u/${runner.profile.username}`} title="Ver perfil público">{runner.profile.display_name?.charAt(0).toUpperCase()}</a></header>
         <div className="dashboard-stats">{dashboardCards(stats, raceCount, medalCount, countryCount, achievementCount).map((card) => <article key={card.label}><strong>{card.value}</strong><h2>{card.label}</h2><p>{card.detail}</p></article>)}</div>
         <section className="next-step"><div><span>PRÓXIMO PASSO</span><h2>{runner.strava_connected ? (stats?.total ? "Explore seu histórico de corrida" : "Importe suas primeiras atividades") : "Conecte seu Strava"}</h2><p>Transforme seu histórico de corrida em provas, recordes e lugares conquistados.</p></div><a className="button" href={runner.strava_connected ? "/atividades" : `${apiUrl}/auth/strava/link`}>{runner.strava_connected ? "Ver atividades" : "Conectar Strava"} <b>→</b></a></section>
       </section>

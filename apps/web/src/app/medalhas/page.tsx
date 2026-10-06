@@ -60,7 +60,7 @@ export default function MedalsPage() {
   const availableRaces = races.filter((race) => !medalRaceIds.has(race.id));
 
   return <main className="dashboard-shell">
-    <aside className="dashboard-sidebar"><a className="brand" href="/">RUNNE<span>VERSO</span></a><nav className="side-nav"><a href="/dashboard">Visão geral</a><a href="/provas">Minhas provas</a><a className="active" href="/medalhas">Porta-medalhas</a><a href="/mapa">Mapa da corrida</a><a href="/atividades">Atividades</a><a href="/conquistas">Recordes</a></nav></aside>
+    <aside className="dashboard-sidebar"><a className="brand" href="/">RUNNE<span>VERSO</span></a><nav className="side-nav"><a href="/dashboard">Visão geral</a><a href="/provas">Minhas provas</a><a className="active" href="/medalhas">Porta-medalhas</a><a href="/mapa">Mapa da corrida</a><a href="/atividades">Atividades</a><a href="/conquistas">Recordes</a><a href="/perfil">Perfil</a></nav></aside>
     <section className="dashboard-main medals-main">
       <header className="activities-header"><div><span>SUAS CONQUISTAS</span><h1>Porta-medalhas.</h1><p>Uma galeria privada por padrão, organizada por distância.</p></div><button className="button" disabled={!availableRaces.length} onClick={() => setCreating(!creating)}>Adicionar medalha</button></header>
       {message && <div className="sync-message">{message}</div>}
