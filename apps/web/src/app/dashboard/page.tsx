@@ -17,6 +17,8 @@ type Runner = {
 };
 type ActivityStats = { total: number; total_distance_meters: number };
 type Insights = { unlocked_count: number };
+type DistancePoint = { label: string; distance_km: number; count: number };
+type ActivityTrends = { weekly: DistancePoint[]; monthly: DistancePoint[] };
 
 function dashboardCards(stats: ActivityStats | null, raceCount: number, medalCount: number, countryCount: number, achievementCount: number) {
   return [
@@ -29,6 +31,20 @@ function dashboardCards(stats: ActivityStats | null, raceCount: number, medalCou
   ];
 }
 
+function BarChart({ points }: { points: DistancePoint[] }) {
+  const max = Math.max(...points.map((point) => point.distance_km), 1);
+  return <div className="chart-bars">{points.map((point) => <div className="chart-bar" key={point.label} title={`${point.distance_km} km`}><i style={{ height: `${Math.max(8, (point.distance_km / max) * 100)}%` }} /><small>{new Date(`${point.label}T00:00:00`).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</small></div>)}</div>;
+}
+
+function LineChart({ points }: { points: DistancePoint[] }) {
+  const width = 560;
+  const height = 190;
+  const max = Math.max(...points.map((point) => point.distance_km), 1);
+  const step = points.length > 1 ? width / (points.length - 1) : width;
+  const coordinates = points.map((point, index) => `${index * step},${height - (point.distance_km / max) * (height - 30)}`).join(" ");
+  return <svg className="chart-line" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none"><polyline points={`0,${height} ${coordinates} ${width},${height}`} /><polyline className="stroke" points={coordinates} />{points.map((point, index) => <circle key={point.label} cx={index * step} cy={height - (point.distance_km / max) * (height - 30)} r="5"><title>{point.distance_km} km</title></circle>)}</svg>;
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const [runner, setRunner] = useState<Runner | null>(null);
@@ -37,6 +53,7 @@ export default function DashboardPage() {
   const [medalCount, setMedalCount] = useState(0);
   const [countryCount, setCountryCount] = useState(0);
   const [achievementCount, setAchievementCount] = useState(0);
+  const [trends, setTrends] = useState<ActivityTrends>({ weekly: [], monthly: [] });
 
   useEffect(() => {
     Promise.all([
@@ -46,10 +63,11 @@ export default function DashboardPage() {
       fetch(`${apiUrl}/medals/count`, { credentials: "include" }),
       fetch(`${apiUrl}/geography/summary?mode=training`, { credentials: "include" }),
       fetch(`${apiUrl}/insights`, { credentials: "include" }),
+      fetch(`${apiUrl}/activities/trends`, { credentials: "include" }),
     ])
-      .then(async ([userResponse, statsResponse, racesResponse, medalsResponse, geographyResponse, insightsResponse]) => {
+      .then(async ([userResponse, statsResponse, racesResponse, medalsResponse, geographyResponse, insightsResponse, trendsResponse]) => {
         if (!userResponse.ok) throw new Error("unauthorized");
-        return [await userResponse.json(), await statsResponse.json(), await racesResponse.json(), await medalsResponse.json(), await geographyResponse.json(), await insightsResponse.json()];
+        return [await userResponse.json(), await statsResponse.json(), await racesResponse.json(), await medalsResponse.json(), await geographyResponse.json(), await insightsResponse.json(), await trendsResponse.json()];
       })
       .then((responses) => {
         const data = responses[0] as Runner;
@@ -58,6 +76,7 @@ export default function DashboardPage() {
         const medals = responses[3] as { total: number };
         const geography = responses[4] as { country_count: number };
         const insights = responses[5] as Insights;
+        const activityTrends = responses[6] as ActivityTrends;
         if (!data.profile.onboarding_completed) router.replace("/onboarding");
         else {
           setRunner(data);
@@ -66,6 +85,7 @@ export default function DashboardPage() {
           setMedalCount(medals.total);
           setCountryCount(geography.country_count);
           setAchievementCount(insights.unlocked_count);
+          setTrends(activityTrends);
         }
       })
       .catch(() => router.replace("/entrar"));
@@ -97,6 +117,7 @@ export default function DashboardPage() {
       <section className="dashboard-main">
         <header className="dashboard-header"><div><span>OLÁ, {runner.profile.username?.toUpperCase()}</span><h1>Bem-vindo ao<br /><em>seu Runneverso.</em></h1></div><a className="avatar" href={`/u/${runner.profile.username}`} title="Ver perfil público">{runner.profile.display_name?.charAt(0).toUpperCase()}</a></header>
         <div className="dashboard-stats">{dashboardCards(stats, raceCount, medalCount, countryCount, achievementCount).map((card) => <article key={card.label}><strong>{card.value}</strong><h2>{card.label}</h2><p>{card.detail}</p></article>)}</div>
+        <section className="dashboard-charts"><article><header><div><span>CONSISTÊNCIA</span><h2>Quilômetros por semana</h2></div><strong>{trends.weekly.reduce((total, point) => total + point.distance_km, 0).toFixed(0)} km</strong></header><BarChart points={trends.weekly} /></article><article><header><div><span>TENDÊNCIA</span><h2>Distância mensal</h2></div><strong>{trends.monthly.reduce((total, point) => total + point.count, 0)} corridas</strong></header><LineChart points={trends.monthly} /></article></section>
         <section className="next-step"><div><span>PRÓXIMO PASSO</span><h2>{runner.strava_connected ? (stats?.total ? "Explore seu histórico de corrida" : "Importe suas primeiras atividades") : "Conecte seu Strava"}</h2><p>Transforme seu histórico de corrida em provas, recordes e lugares conquistados.</p></div><a className="button" href={runner.strava_connected ? "/atividades" : `${apiUrl}/auth/strava/link`}>{runner.strava_connected ? "Ver atividades" : "Conectar Strava"} <b>→</b></a></section>
       </section>
     </main>

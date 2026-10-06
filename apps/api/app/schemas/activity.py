@@ -34,6 +34,17 @@ class ActivityStatsResponse(BaseModel):
     latest_activity_at: datetime | None
 
 
+class DistancePointResponse(BaseModel):
+    label: str
+    distance_km: float
+    count: int
+
+
+class ActivityTrendsResponse(BaseModel):
+    weekly: list[DistancePointResponse]
+    monthly: list[DistancePointResponse]
+
+
 class SyncResponse(BaseModel):
     imported: int
     updated: int

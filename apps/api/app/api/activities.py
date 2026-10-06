@@ -9,6 +9,8 @@ from app.schemas.activity import (
     ActivityListResponse,
     ActivityResponse,
     ActivityStatsResponse,
+    ActivityTrendsResponse,
+    DistancePointResponse,
     SyncResponse,
     SyncStatusResponse,
 )
@@ -99,4 +101,41 @@ def activity_stats(
         total_distance_meters=float(row[1]),
         total_moving_time_seconds=row[2],
         latest_activity_at=row[3],
+    )
+
+
+def distance_points(
+    db: Session, user: User, bucket: str, count: int
+) -> list[DistancePointResponse]:
+    period = func.date_trunc(bucket, Activity.started_at)
+    rows = db.execute(
+        select(
+            period,
+            func.count(Activity.id),
+            func.coalesce(func.sum(Activity.distance_meters), 0),
+        )
+        .where(Activity.user_id == user.id)
+        .group_by(period)
+        .order_by(desc(period))
+        .limit(count)
+    ).all()
+    points = [
+        DistancePointResponse(
+            label=row[0].date().isoformat(),
+            count=row[1],
+            distance_km=round(float(row[2]) / 1000, 1),
+        )
+        for row in rows
+    ]
+    return list(reversed(points))
+
+
+@router.get("/activities/trends", response_model=ActivityTrendsResponse)
+def activity_trends(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> ActivityTrendsResponse:
+    return ActivityTrendsResponse(
+        weekly=distance_points(db, user, "week", 12),
+        monthly=distance_points(db, user, "month", 12),
     )
