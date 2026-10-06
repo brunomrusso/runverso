@@ -1,7 +1,17 @@
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
-from app.models import Follow, Medal, Notification, PrivacySettings, Profile, Race, Reaction, User
+from app.models import (
+    Comment,
+    Follow,
+    Medal,
+    Notification,
+    PrivacySettings,
+    Profile,
+    Race,
+    Reaction,
+    User,
+)
 from app.schemas.profile import ProfileResponse
 from app.services.insights import personal_records
 
@@ -286,6 +296,7 @@ def community_feed(db: Session, viewer: User) -> list[dict]:
     ]
     for item in items:
         item["like_count"] = reaction_count(db, item["target_type"], item["target_id"])
+        item["comment_count"] = comment_count(db, item["target_type"], item["target_id"])
         item["viewer_liked"] = bool(
             db.scalar(
                 select(Reaction.id).where(
@@ -306,7 +317,15 @@ def reaction_count(db: Session, target_type: str, target_id) -> int:
     ) or 0
 
 
-def toggle_reaction(db: Session, viewer: User, target_type: str, target_id) -> tuple[bool, int]:
+def comment_count(db: Session, target_type: str, target_id) -> int:
+    return db.scalar(
+        select(func.count())
+        .select_from(Comment)
+        .where(Comment.target_type == target_type, Comment.target_id == target_id)
+    ) or 0
+
+
+def visible_target(db: Session, viewer: User, target_type: str, target_id):
     model = {"race": Race, "medal": Medal}.get(target_type)
     if model is None:
         raise ValueError("not_found")
@@ -320,6 +339,11 @@ def toggle_reaction(db: Session, viewer: User, target_type: str, target_id) -> t
         setting = owner.privacy_settings.medals_visibility
     if not can_view(owner, viewer, setting, follow) or target.visibility == "private":
         raise ValueError("not_found")
+    return target, owner
+
+
+def toggle_reaction(db: Session, viewer: User, target_type: str, target_id) -> tuple[bool, int]:
+    _target, owner = visible_target(db, viewer, target_type, target_id)
 
     existing = db.scalar(
         select(Reaction).where(
@@ -337,6 +361,68 @@ def toggle_reaction(db: Session, viewer: User, target_type: str, target_id) -> t
         notify(db, owner, viewer, "reaction", f"curtiu sua {event}")
     db.commit()
     return liked, reaction_count(db, target_type, target_id)
+
+
+def comment_items(db: Session, viewer: User, target_type: str, target_id) -> list[dict]:
+    target, owner = visible_target(db, viewer, target_type, target_id)
+    comments = db.scalars(
+        select(Comment)
+        .where(Comment.target_type == target_type, Comment.target_id == target_id)
+        .order_by(Comment.created_at.asc())
+        .limit(50)
+    ).all()
+    return [
+        {
+            "id": str(comment.id),
+            "body": comment.body,
+            "username": comment.user.profile.username,
+            "display_name": comment.user.profile.display_name,
+            "avatar_url": comment.user.profile.avatar_url,
+            "can_delete": comment.user_id == viewer.id or owner.id == viewer.id,
+            "created_at": comment.created_at.isoformat(),
+        }
+        for comment in comments
+        if comment.user.profile
+    ] if target else []
+
+
+def add_comment(
+    db: Session, viewer: User, target_type: str, target_id, body: str
+) -> tuple[dict, int]:
+    target, owner = visible_target(db, viewer, target_type, target_id)
+    clean_body = " ".join(body.strip().split())
+    if not clean_body or len(clean_body) > 500:
+        raise ValueError("invalid_comment")
+    comment = Comment(
+        user_id=viewer.id,
+        target_type=target_type,
+        target_id=target_id,
+        body=clean_body,
+    )
+    db.add(comment)
+    event = "prova" if target_type == "race" else "medalha"
+    notify(db, owner, viewer, "comment", f"comentou sua {event}")
+    db.commit()
+    return {
+        "id": str(comment.id),
+        "body": comment.body,
+        "username": viewer.profile.username,
+        "display_name": viewer.profile.display_name,
+        "avatar_url": viewer.profile.avatar_url,
+        "can_delete": True,
+        "created_at": comment.created_at.isoformat(),
+    }, comment_count(db, target_type, target_id)
+
+
+def delete_comment(db: Session, viewer: User, comment_id) -> None:
+    comment = db.get(Comment, comment_id)
+    if not comment:
+        raise ValueError("not_found")
+    target, owner = visible_target(db, viewer, comment.target_type, comment.target_id)
+    if not target or (comment.user_id != viewer.id and owner.id != viewer.id):
+        raise ValueError("not_found")
+    db.delete(comment)
+    db.commit()
 
 
 def notifications(db: Session, viewer: User) -> tuple[list[dict], int]:

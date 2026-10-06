@@ -236,6 +236,15 @@ h1 em { color: var(--orange); font-style: normal; }
 .notification-item { display: grid; grid-template-columns: 160px 1fr auto; gap: 14px; align-items: center; padding: 14px 18px; border-radius: 18px; background: rgba(255,255,255,.42); }
 .notification-item.unread { background: #fff; box-shadow: 0 8px 22px rgba(34,35,30,.06); }
 .notification-item p, .notification-item small { margin: 0; color: var(--muted); font-size: 12px; }
+.comment-toggle { border: 0; background: none; color: var(--muted); cursor: pointer; font-weight: 700; text-decoration: underline; }
+.comment-list { display: grid; gap: 10px; margin-top: 14px; }
+.comment { display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: center; padding: 10px; border-radius: 14px; background: rgba(255,255,255,.55); }
+.comment-avatar { display: grid; place-items: center; width: 36px; height: 36px; overflow: hidden; border-radius: 50%; background: var(--ink); color: var(--lime); font-weight: 800; text-decoration: none; }
+.comment-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.comment p { margin: 2px 0 0; font-size: 13px; }
+.comment-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.comment-form input { border: 1px solid rgba(17,18,15,.12); border-radius: 999px; padding: 10px 14px; background: #fff; }
+.comment-form .button { padding: 10px 16px; font-size: 12px; }
 .map-main { max-width: 1500px; width: 100%; background: radial-gradient(circle at 100% 0, rgba(200,255,50,.12), transparent 28%); }
 .map-main .activities-header { margin-bottom: 28px; }
 .map-main .activities-header h1 { max-width: 760px; }
@@ -350,6 +359,8 @@ h1 em { color: var(--orange); font-style: normal; }
   .runner-card > .button, .request-actions, .link-button { grid-column: 2; }
   .runner-avatar.small { width: 52px; height: 52px; border-radius: 17px; }
   .feed-item, .notification-item { grid-template-columns: 1fr; gap: 10px; }
+  .comment, .comment-form { grid-template-columns: 1fr; }
+  .comment-avatar { width: 42px; height: 42px; }
   .feed-item > span { width: fit-content; }
   .feed-item > small { justify-self: start; }
 }

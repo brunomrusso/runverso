@@ -65,6 +65,7 @@ class FeedItemResponse(BaseModel):
     subtitle: str | None
     happened_at: str
     like_count: int
+    comment_count: int
     viewer_liked: bool
 
 
@@ -90,3 +91,21 @@ class NotificationResponse(BaseModel):
 class NotificationsResponse(BaseModel):
     items: list[NotificationResponse]
     unread_count: int
+
+
+class CommentCreate(BaseModel):
+    body: str
+
+
+class CommentResponse(BaseModel):
+    id: str
+    body: str
+    username: str
+    display_name: str | None
+    avatar_url: str | None
+    can_delete: bool
+    created_at: str
+
+
+class CommentsResponse(BaseModel):
+    items: list[CommentResponse]

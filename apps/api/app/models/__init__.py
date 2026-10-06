@@ -5,12 +5,13 @@ from app.models.medal import Medal, MedalPhoto
 from app.models.privacy import PrivacySettings
 from app.models.profile import Profile
 from app.models.race import Race
-from app.models.social import Follow, Notification, Reaction
+from app.models.social import Comment, Follow, Notification, Reaction
 from app.models.user import User
 
 __all__ = [
     "Activity",
     "AuthIdentity",
+    "Comment",
     "Follow",
     "Location",
     "Medal",

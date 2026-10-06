@@ -7,6 +7,9 @@ from app.core.config import get_settings
 from app.dependencies.database import get_db
 from app.models import User
 from app.schemas.social import (
+    CommentCreate,
+    CommentResponse,
+    CommentsResponse,
     FeedResponse,
     FollowersResponse,
     FollowResponse,
@@ -17,8 +20,11 @@ from app.schemas.social import (
 )
 from app.services.sessions import find_session, get_current_user
 from app.services.social import (
+    add_comment,
     answer_follow_request,
+    comment_items,
     community_feed,
+    delete_comment,
     follow_runner,
     follower_overview,
     mark_notifications_read,
@@ -57,6 +63,51 @@ def like_feed_item(
     except ValueError as exc:
         raise HTTPException(status_code=404, detail="Conteúdo não encontrado") from exc
     return ReactionResponse(liked=liked, like_count=count)
+
+
+@router.get("/feed/{target_type}/{target_id}/comments", response_model=CommentsResponse)
+def list_comments(
+    target_type: str,
+    target_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> CommentsResponse:
+    try:
+        return CommentsResponse(items=comment_items(db, user, target_type, target_id))
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail="Conteúdo não encontrado") from exc
+
+
+@router.post("/feed/{target_type}/{target_id}/comments", response_model=CommentResponse)
+def create_comment(
+    target_type: str,
+    target_id: uuid.UUID,
+    payload: CommentCreate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> CommentResponse:
+    try:
+        comment, _count = add_comment(db, user, target_type, target_id, payload.body)
+    except ValueError as exc:
+        invalid = str(exc) == "invalid_comment"
+        raise HTTPException(
+            status_code=400 if invalid else 404,
+            detail="Comentário inválido" if invalid else "Conteúdo não encontrado",
+        ) from exc
+    return CommentResponse(**comment)
+
+
+@router.delete("/comments/{comment_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_comment(
+    comment_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> Response:
+    try:
+        delete_comment(db, user, comment_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail="Comentário não encontrado") from exc
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/notifications", response_model=NotificationsResponse)
