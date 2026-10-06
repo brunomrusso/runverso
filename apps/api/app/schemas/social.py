@@ -36,6 +36,7 @@ class FollowResponse(BaseModel):
 class RunnerSummaryResponse(BaseModel):
     username: str
     display_name: str | None
+    avatar_url: str | None
     city: str | None
     state: str | None
     country_code: str

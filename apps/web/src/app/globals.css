@@ -152,6 +152,10 @@ h1 em { color: var(--orange); font-style: normal; }
 .race-list > article > strong { font: 600 19px 'Space Grotesk'; }
 .race-row-actions { display: grid; gap: 7px; }
 .race-row-actions button { border: 0; background: none; text-decoration: underline; cursor: pointer; font-size: 11px; }
+.profile-form, .privacy-form { max-width: 860px; }
+.avatar-edit { display: flex; gap: 18px; align-items: center; }
+.avatar-edit > div, .avatar-edit img { width: 86px; height: 86px; border-radius: 28px; background: var(--lime); display: grid; place-items: center; font: 700 40px 'Space Grotesk'; object-fit: cover; box-shadow: 0 8px 22px rgba(17,18,15,.12); }
+.avatar-edit label { flex: 1; }
 .privacy-form > p { margin: 0; color: var(--muted); line-height: 1.5; }
 .check-option { display: flex !important; grid-template-columns: none; align-items: center; gap: 10px; font-size: 14px !important; }
 .check-option input { width: 18px; height: 18px; accent-color: var(--orange); }

@@ -5,7 +5,20 @@ import { useRouter } from "next/navigation";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-type Runner = { profile: { username: string | null; display_name: string | null } };
+type Runner = {
+  profile: {
+    username: string | null;
+    real_name: string | null;
+    display_name: string | null;
+    bio: string | null;
+    avatar_url: string | null;
+    city: string | null;
+    state: string | null;
+    country_code: string;
+    started_running_year: number | null;
+    favorite_distance: string | null;
+  };
+};
 type Privacy = {
   profile_visibility: "public" | "followers" | "private";
   activities_visibility: "public" | "followers" | "private";
@@ -58,6 +71,47 @@ export default function ProfileSettingsPage() {
     setMessage(response.ok ? "Privacidade atualizada." : "Não foi possível salvar.");
   }
 
+  async function saveProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    const response = await fetch(`${apiUrl}/me/profile`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: form.get("username"),
+        real_name: form.get("real_name") || null,
+        display_name: form.get("display_name"),
+        bio: form.get("bio") || null,
+        city: form.get("city") || null,
+        state: form.get("state") || null,
+        country_code: form.get("country_code") || "BR",
+        started_running_year: Number(form.get("started_running_year")) || null,
+        favorite_distance: form.get("favorite_distance") || null,
+      }),
+    });
+    if (response.ok) {
+      setRunner(await response.json());
+      setMessage("Perfil atualizado.");
+      const photo = form.get("avatar") as File;
+      if (photo?.size) {
+        const upload = new FormData();
+        upload.append("photo", photo);
+        const avatarResponse = await fetch(`${apiUrl}/me/avatar`, {
+          method: "POST",
+          credentials: "include",
+          body: upload,
+        });
+        if (avatarResponse.ok) setRunner(await avatarResponse.json());
+        else setMessage("Perfil salvo, mas a foto não foi aceita.");
+      }
+    } else {
+      const error = await response.json();
+      setMessage(error.detail ?? "Não foi possível salvar o perfil.");
+    }
+  }
+
   if (!runner || !privacy) return <main className="dashboard-loading">Carregando perfil…</main>;
 
   const visibility = (name: keyof Privacy, label: string) => <label>{label}<select name={name} defaultValue={String(privacy[name])}><option value="public">Público</option><option value="followers">Seguidores</option><option value="private">Privado</option></select></label>;
@@ -67,6 +121,17 @@ export default function ProfileSettingsPage() {
     <section className="dashboard-main achievements-main">
       <header className="activities-header"><div><span>IDENTIDADE DO CORREDOR</span><h1>Perfil e privacidade.</h1><p>Escolha como sua história aparece para outras pessoas.</p></div>{runner.profile.username && <a className="button" href={`/u/${runner.profile.username}`}>Ver perfil público</a>}</header>
       {message && <div className="sync-message">{message}</div>}
+      <form className="race-form profile-form" onSubmit={saveProfile}>
+        <h2>Dados públicos</h2>
+        <div className="avatar-edit">{runner.profile.avatar_url ? <img src={`${apiUrl}${runner.profile.avatar_url}`} alt="Avatar" /> : <div>{runner.profile.display_name?.charAt(0).toUpperCase()}</div>}<label>Foto do perfil<input name="avatar" type="file" accept="image/jpeg,image/png,image/webp" /></label></div>
+        <div className="form-row"><label>Nome de usuário<input name="username" defaultValue={runner.profile.username ?? ""} required /></label><label>Nome de exibição<input name="display_name" defaultValue={runner.profile.display_name ?? ""} required /></label></div>
+        <label>Nome real <small>controlado pela opção “exibir nome real”</small><input name="real_name" defaultValue={runner.profile.real_name ?? ""} /></label>
+        <label>Bio<textarea name="bio" rows={3} defaultValue={runner.profile.bio ?? ""} placeholder="Conte um pouco da sua história na corrida" /></label>
+        <div className="form-row"><label>Cidade<input name="city" defaultValue={runner.profile.city ?? ""} /></label><label>Estado<input name="state" defaultValue={runner.profile.state ?? ""} /></label></div>
+        <div className="form-row"><label>País<input name="country_code" defaultValue={runner.profile.country_code} maxLength={2} /></label><label>Corre desde<input name="started_running_year" type="number" min="1900" max={new Date().getFullYear()} defaultValue={runner.profile.started_running_year ?? ""} /></label></div>
+        <label>Distância favorita<select name="favorite_distance" defaultValue={runner.profile.favorite_distance ?? ""}><option value="">Selecione</option><option>5K</option><option>10K</option><option>15K</option><option>21K</option><option>42K</option><option>ULTRA</option></select></label>
+        <button className="button" type="submit">Salvar perfil</button>
+      </form>
       <form className="race-form privacy-form" onSubmit={save}>
         <h2>Visibilidade</h2>
         <p>Seu link público é <strong>{runner.profile.username ? `/u/${runner.profile.username}` : "criado ao definir um nome de usuário"}</strong>. O perfil só aparece quando estiver público.</p>

@@ -148,6 +148,7 @@ def runner_summary(db: Session, runner: User, viewer: User) -> dict:
     return {
         "username": runner.profile.username,
         "display_name": runner.profile.display_name,
+        "avatar_url": runner.profile.avatar_url,
         "city": runner.profile.city,
         "state": runner.profile.state,
         "country_code": runner.profile.country_code,

@@ -1,10 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import uuid
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
+from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.core.config import get_settings
 from app.dependencies.database import get_db
-from app.models import PrivacySettings, Profile, User
+from app.models import Follow, PrivacySettings, Profile, User
 from app.schemas.profile import (
     CurrentUserResponse,
     PrivacyResponse,
@@ -12,9 +17,11 @@ from app.schemas.profile import (
     ProfileResponse,
     ProfileUpdate,
 )
-from app.services.sessions import get_current_user
+from app.services.images import resolve_upload, save_avatar
+from app.services.sessions import find_session, get_current_user
 
 router = APIRouter(tags=["profile"])
+settings = get_settings()
 
 
 def serialize_user(user: User) -> CurrentUserResponse:
@@ -49,6 +56,48 @@ def update_profile(
         raise HTTPException(status_code=409, detail="Este nome de usuário já está em uso") from exc
     db.refresh(user.profile)
     return serialize_user(user)
+
+
+@router.post("/me/avatar", response_model=CurrentUserResponse)
+async def upload_avatar(
+    photo: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> CurrentUserResponse:
+    await save_avatar(photo, user.id)
+    user.profile.avatar_url = f"/avatars/{user.id}?v={int(datetime.now().timestamp())}"
+    db.commit()
+    db.refresh(user.profile)
+    return serialize_user(user)
+
+
+@router.get("/avatars/{user_id}")
+def avatar(
+    user_id: uuid.UUID,
+    request: Request,
+    db: Session = Depends(get_db),
+) -> FileResponse:
+    runner = db.get(User, user_id)
+    if not runner or not runner.profile or not runner.privacy_settings:
+        raise HTTPException(status_code=404, detail="Avatar não encontrado")
+    session = find_session(db, request.cookies.get(settings.session_cookie_name))
+    viewer = session.user if session else None
+    privacy = runner.privacy_settings.profile_visibility
+    allowed = privacy == "public" or (viewer and viewer.id == runner.id)
+    if privacy == "followers" and viewer:
+        allowed = db.scalar(
+            select(Follow.id).where(
+                Follow.follower_id == viewer.id,
+                Follow.following_id == runner.id,
+                Follow.status == "accepted",
+            )
+        ) is not None
+    if not allowed:
+        raise HTTPException(status_code=404, detail="Avatar não encontrado")
+    path = resolve_upload(f"{runner.id}/avatar/avatar.jpg")
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Avatar não encontrado")
+    return FileResponse(path, media_type="image/jpeg")
 
 
 @router.get("/me/privacy", response_model=PrivacyResponse)

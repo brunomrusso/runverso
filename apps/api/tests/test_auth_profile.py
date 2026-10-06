@@ -481,6 +481,22 @@ def test_feed_contains_public_races_from_accepted_follows(
     assert TestClient(app).get("/feed").status_code == 401
 
 
+def test_avatar_upload_is_optimized_and_served(authenticated_client: TestClient) -> None:
+    image_bytes = io.BytesIO()
+    Image.new("RGB", (900, 700), "green").save(image_bytes, format="PNG")
+
+    response = authenticated_client.post(
+        "/me/avatar",
+        files={"photo": ("avatar.png", image_bytes.getvalue(), "image/png")},
+    )
+
+    assert response.status_code == 200
+    avatar_url = response.json()["profile"]["avatar_url"]
+    assert avatar_url.startswith("/avatars/")
+    assert authenticated_client.get(avatar_url).status_code == 200
+    assert TestClient(app).get(avatar_url).status_code == 200
+
+
 def test_private_profile_is_not_public(authenticated_client: TestClient) -> None:
     authenticated_client.patch(
         "/me/profile",

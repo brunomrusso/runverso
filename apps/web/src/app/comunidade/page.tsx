@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-type Runner = { username: string; display_name: string | null; city: string | null; state: string | null; country_code: string; follower_count: number; viewer_follow_status: string | null };
+type Runner = { username: string; display_name: string | null; avatar_url: string | null; city: string | null; state: string | null; country_code: string; follower_count: number; viewer_follow_status: string | null };
 type Followers = { followers: Runner[]; pending: Runner[]; following: Runner[] };
 type FeedItem = { id: string; kind: string; username: string; display_name: string | null; title: string; subtitle: string | null; happened_at: string };
 
@@ -55,7 +55,7 @@ export default function CommunityPage() {
     await loadFollowers();
   }
 
-  const runnerCard = (runner: Runner, actions?: React.ReactNode) => <article key={runner.username} className="runner-card"><a className="runner-avatar small" href={`/u/${runner.username}`}>{runner.display_name?.charAt(0).toUpperCase()}</a><div><a href={`/u/${runner.username}`}><h2>{runner.display_name}</h2></a><p>@{runner.username}{runner.city ? ` · ${runner.city}${runner.state ? `, ${runner.state}` : ""}` : ""}</p><small>{runner.follower_count} seguidores</small></div>{actions}</article>;
+  const runnerCard = (runner: Runner, actions?: React.ReactNode) => <article key={runner.username} className="runner-card"><a className="runner-avatar small" href={`/u/${runner.username}`}>{runner.avatar_url ? <img src={`${apiUrl}${runner.avatar_url}`} alt="" /> : runner.display_name?.charAt(0).toUpperCase()}</a><div><a href={`/u/${runner.username}`}><h2>{runner.display_name}</h2></a><p>@{runner.username}{runner.city ? ` · ${runner.city}${runner.state ? `, ${runner.state}` : ""}` : ""}</p><small>{runner.follower_count} seguidores</small></div>{actions}</article>;
 
   return <main className="dashboard-shell">
     <aside className="dashboard-sidebar"><a className="brand" href="/">RUNNE<span>VERSO</span></a><nav className="side-nav"><a href="/dashboard">Visão geral</a><a href="/provas">Minhas provas</a><a href="/medalhas">Porta-medalhas</a><a href="/mapa">Mapa da corrida</a><a href="/atividades">Atividades</a><a href="/conquistas">Recordes</a><a className="active" href="/comunidade">Comunidade</a><a href="/perfil">Perfil</a></nav></aside>
