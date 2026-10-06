@@ -33,16 +33,23 @@ function dashboardCards(stats: ActivityStats | null, raceCount: number, medalCou
 
 function BarChart({ points }: { points: DistancePoint[] }) {
   const max = Math.max(...points.map((point) => point.distance_km), 1);
-  return <div className="chart-bars">{points.map((point) => <div className="chart-bar" key={point.label} title={`${point.distance_km} km`}><i style={{ height: `${Math.max(8, (point.distance_km / max) * 100)}%` }} /><small>{new Date(`${point.label}T00:00:00`).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</small></div>)}</div>;
+  return <div className="chart-bars">{points.map((point) => <div className="chart-bar" key={point.label} title={`${point.distance_km} km`}><b>{point.distance_km.toFixed(0)}</b><i style={{ height: `${Math.max(8, (point.distance_km / max) * 82)}%` }} /><small>{new Date(`${point.label}T00:00:00`).toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")}</small></div>)}</div>;
 }
 
 function LineChart({ points }: { points: DistancePoint[] }) {
   const width = 560;
   const height = 190;
   const max = Math.max(...points.map((point) => point.distance_km), 1);
-  const step = points.length > 1 ? width / (points.length - 1) : width;
-  const coordinates = points.map((point, index) => `${index * step},${height - (point.distance_km / max) * (height - 30)}`).join(" ");
-  return <svg className="chart-line" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none"><polyline points={`0,${height} ${coordinates} ${width},${height}`} /><polyline className="stroke" points={coordinates} />{points.map((point, index) => <circle key={point.label} cx={index * step} cy={height - (point.distance_km / max) * (height - 30)} r="5"><title>{point.distance_km} km</title></circle>)}</svg>;
+  const step = points.length > 1 ? (width - 44) / (points.length - 1) : width;
+  const position = (point: DistancePoint, index: number) => ({
+    x: 22 + index * step,
+    y: 18 + (1 - point.distance_km / max) * (height - 62),
+  });
+  const coordinates = points.map((point, index) => {
+    const pointPosition = position(point, index);
+    return `${pointPosition.x},${pointPosition.y}`;
+  }).join(" ");
+  return <svg className="chart-line" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none"><polyline points={`22,${height - 28} ${coordinates} ${width - 22},${height - 28}`} /><polyline className="stroke" points={coordinates} />{points.map((point, index) => { const pointPosition = position(point, index); return <g key={point.label}><text className="chart-value" x={pointPosition.x} y={pointPosition.y - 10} textAnchor="middle">{point.distance_km.toFixed(0)}</text><circle cx={pointPosition.x} cy={pointPosition.y} r="5"><title>{point.distance_km} km</title></circle><text className="chart-axis" x={pointPosition.x} y={height - 8} textAnchor="middle">{new Date(`${point.label}T00:00:00`).toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")}</text></g>; })}</svg>;
 }
 
 export default function DashboardPage() {

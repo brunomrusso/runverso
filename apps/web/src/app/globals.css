@@ -95,9 +95,11 @@ h1 em { color: var(--orange); font-style: normal; }
 .dashboard-charts h2 { font: 600 22px 'Space Grotesk'; margin: 5px 0 0; }
 .dashboard-charts header > strong { font: 700 26px 'Space Grotesk'; }
 .chart-bars { height: 175px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; align-items: end; }
-.chart-bar { height: 100%; display: flex; flex-direction: column; justify-content: end; align-items: center; gap: 8px; min-width: 0; }
+.chart-bar { height: 100%; display: flex; flex-direction: column; justify-content: end; align-items: center; gap: 6px; min-width: 0; }
+.chart-bar b { font: 700 10px 'Space Grotesk'; }
 .chart-bar i { width: 100%; max-width: 30px; border-radius: 8px 8px 3px 3px; background: linear-gradient(180deg, var(--lime), var(--orange)); box-shadow: 0 6px 14px rgba(255,89,56,.18); }
-.chart-bar small { color: var(--muted); font-size: 9px; white-space: nowrap; }
+.chart-bar small, .chart-axis { color: var(--muted); fill: var(--muted); font-size: 9px; white-space: nowrap; }
+.chart-value { fill: var(--ink); font: 700 12px 'Space Grotesk'; }
 .chart-line { width: 100%; height: 175px; display: block; }
 .chart-line polyline { fill: rgba(200,255,50,.22); stroke: none; }
 .chart-line polyline.stroke { fill: none; stroke: var(--orange); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
@@ -340,8 +342,10 @@ h1 em { color: var(--orange); font-style: normal; }
   .dashboard-charts article { min-height: 220px; padding: 16px; border-radius: 18px; }
   .dashboard-charts h2 { font-size: 17px; }
   .dashboard-charts header > strong { font-size: 20px; }
-  .chart-bars { gap: 4px; height: 145px; }
-  .chart-bar small { display: none; }
+  .chart-bars { gap: 4px; height: 165px; }
+  .chart-bar b { font-size: 8px; }
+  .chart-bar small, .chart-axis { font-size: 7px; }
+  .chart-value { font-size: 9px; }
   .chart-line { height: 145px; }
   .next-step { align-items: flex-start; flex-direction: column; padding: 22px; }
   .next-step .button { width: 100%; text-align: center; }
