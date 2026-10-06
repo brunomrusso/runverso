@@ -1,7 +1,7 @@
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
-from app.models import Follow, Medal, PrivacySettings, Profile, Race, User
+from app.models import Follow, Medal, Notification, PrivacySettings, Profile, Race, Reaction, User
 from app.schemas.profile import ProfileResponse
 from app.services.insights import personal_records
 
@@ -34,6 +34,11 @@ def accepted_following_count(db: Session, user: User) -> int:
         .select_from(Follow)
         .where(Follow.follower_id == user.id, Follow.status == "accepted")
     ) or 0
+
+
+def notify(db: Session, user: User, actor: User, kind: str, message: str) -> None:
+    if user.id != actor.id:
+        db.add(Notification(user_id=user.id, actor_id=actor.id, kind=kind, message=message))
 
 
 def can_view(owner: User, viewer: User | None, visibility: str, follow: Follow | None) -> bool:
@@ -128,6 +133,17 @@ def follow_runner(db: Session, viewer: User, username: str) -> tuple[str, int]:
         existing.status = status
     else:
         db.add(Follow(follower_id=viewer.id, following_id=runner.id, status=status))
+        notify(
+            db,
+            runner,
+            viewer,
+            "follow_request" if status == "pending" else "new_follower",
+            (
+                "pediu para seguir você"
+                if status == "pending"
+                else "começou a seguir você"
+            ),
+        )
     db.commit()
     return status, accepted_follower_count(db, runner)
 
@@ -241,6 +257,8 @@ def community_feed(db: Session, viewer: User) -> list[dict]:
     items = [
         {
             "id": str(race.id),
+            "target_type": "race",
+            "target_id": str(race.id),
             "kind": "race",
             "username": race.user.profile.username,
             "display_name": race.user.profile.display_name,
@@ -255,6 +273,8 @@ def community_feed(db: Session, viewer: User) -> list[dict]:
     ] + [
         {
             "id": str(medal.id),
+            "target_type": "medal",
+            "target_id": str(medal.id),
             "kind": "medal",
             "username": medal.user.profile.username,
             "display_name": medal.user.profile.display_name,
@@ -264,7 +284,96 @@ def community_feed(db: Session, viewer: User) -> list[dict]:
         }
         for medal in medals
     ]
+    for item in items:
+        item["like_count"] = reaction_count(db, item["target_type"], item["target_id"])
+        item["viewer_liked"] = bool(
+            db.scalar(
+                select(Reaction.id).where(
+                    Reaction.user_id == viewer.id,
+                    Reaction.target_type == item["target_type"],
+                    Reaction.target_id == item["target_id"],
+                )
+            )
+        )
     return sorted(items, key=lambda item: item["happened_at"], reverse=True)[:40]
+
+
+def reaction_count(db: Session, target_type: str, target_id) -> int:
+    return db.scalar(
+        select(func.count())
+        .select_from(Reaction)
+        .where(Reaction.target_type == target_type, Reaction.target_id == target_id)
+    ) or 0
+
+
+def toggle_reaction(db: Session, viewer: User, target_type: str, target_id) -> tuple[bool, int]:
+    model = {"race": Race, "medal": Medal}.get(target_type)
+    if model is None:
+        raise ValueError("not_found")
+    target = db.get(model, target_id)
+    if not target or target.user_id == viewer.id:
+        raise ValueError("not_found")
+    owner = target.user
+    follow = follow_state(db, viewer, owner)
+    setting = owner.privacy_settings.races_visibility
+    if target_type == "medal":
+        setting = owner.privacy_settings.medals_visibility
+    if not can_view(owner, viewer, setting, follow) or target.visibility == "private":
+        raise ValueError("not_found")
+
+    existing = db.scalar(
+        select(Reaction).where(
+            Reaction.user_id == viewer.id,
+            Reaction.target_type == target_type,
+            Reaction.target_id == target_id,
+        )
+    )
+    liked = existing is None
+    if existing:
+        db.delete(existing)
+    else:
+        db.add(Reaction(user_id=viewer.id, target_type=target_type, target_id=target_id))
+        event = "prova" if target_type == "race" else "medalha"
+        notify(db, owner, viewer, "reaction", f"curtiu sua {event}")
+    db.commit()
+    return liked, reaction_count(db, target_type, target_id)
+
+
+def notifications(db: Session, viewer: User) -> tuple[list[dict], int]:
+    items = db.scalars(
+        select(Notification)
+        .where(Notification.user_id == viewer.id)
+        .order_by(Notification.created_at.desc())
+        .limit(30)
+    ).all()
+    unread = db.scalar(
+        select(func.count())
+        .select_from(Notification)
+        .where(Notification.user_id == viewer.id, Notification.is_read.is_(False))
+    ) or 0
+    return [
+        {
+            "id": str(item.id),
+            "kind": item.kind,
+            "message": item.message,
+            "actor_username": item.actor.profile.username if item.actor else None,
+            "actor_display_name": item.actor.profile.display_name if item.actor else None,
+            "is_read": item.is_read,
+            "created_at": item.created_at.isoformat(),
+        }
+        for item in items
+    ], unread
+
+
+def mark_notifications_read(db: Session, viewer: User) -> None:
+    items = db.scalars(
+        select(Notification).where(
+            Notification.user_id == viewer.id, Notification.is_read.is_(False)
+        )
+    ).all()
+    for item in items:
+        item.is_read = True
+    db.commit()
 
 
 def answer_follow_request(db: Session, viewer: User, username: str, accept: bool) -> None:
@@ -280,6 +389,7 @@ def answer_follow_request(db: Session, viewer: User, username: str, accept: bool
         raise ValueError("not_found")
     if accept:
         follow.status = "accepted"
+        notify(db, follower, viewer, "follow_accepted", "aceitou sua solicitação")
     else:
         db.delete(follow)
     db.commit()

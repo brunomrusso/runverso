@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.orm import Session
 
@@ -8,7 +10,9 @@ from app.schemas.social import (
     FeedResponse,
     FollowersResponse,
     FollowResponse,
+    NotificationsResponse,
     PublicProfileResponse,
+    ReactionResponse,
     RunnerSearchResponse,
 )
 from app.services.sessions import find_session, get_current_user
@@ -17,8 +21,11 @@ from app.services.social import (
     community_feed,
     follow_runner,
     follower_overview,
+    mark_notifications_read,
+    notifications,
     public_overview,
     search_runners,
+    toggle_reaction,
     unfollow_runner,
 )
 
@@ -36,6 +43,36 @@ def feed(
     db: Session = Depends(get_db), user: User = Depends(get_current_user)
 ) -> FeedResponse:
     return FeedResponse(items=community_feed(db, user))
+
+
+@router.post("/feed/{target_type}/{target_id}/like", response_model=ReactionResponse)
+def like_feed_item(
+    target_type: str,
+    target_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> ReactionResponse:
+    try:
+        liked, count = toggle_reaction(db, user, target_type, target_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail="Conteúdo não encontrado") from exc
+    return ReactionResponse(liked=liked, like_count=count)
+
+
+@router.get("/notifications", response_model=NotificationsResponse)
+def notification_list(
+    db: Session = Depends(get_db), user: User = Depends(get_current_user)
+) -> NotificationsResponse:
+    items, unread_count = notifications(db, user)
+    return NotificationsResponse(items=items, unread_count=unread_count)
+
+
+@router.post("/notifications/read", status_code=status.HTTP_204_NO_CONTENT)
+def read_notifications(
+    db: Session = Depends(get_db), user: User = Depends(get_current_user)
+) -> Response:
+    mark_notifications_read(db, user)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/community/runners", response_model=RunnerSearchResponse)
