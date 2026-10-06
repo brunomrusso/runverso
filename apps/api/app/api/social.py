@@ -5,6 +5,7 @@ from app.core.config import get_settings
 from app.dependencies.database import get_db
 from app.models import User
 from app.schemas.social import (
+    FeedResponse,
     FollowersResponse,
     FollowResponse,
     PublicProfileResponse,
@@ -13,6 +14,7 @@ from app.schemas.social import (
 from app.services.sessions import find_session, get_current_user
 from app.services.social import (
     answer_follow_request,
+    community_feed,
     follow_runner,
     follower_overview,
     public_overview,
@@ -27,6 +29,13 @@ settings = get_settings()
 def optional_user(request: Request, db: Session = Depends(get_db)) -> User | None:
     session = find_session(db, request.cookies.get(settings.session_cookie_name))
     return session.user if session else None
+
+
+@router.get("/feed", response_model=FeedResponse)
+def feed(
+    db: Session = Depends(get_db), user: User = Depends(get_current_user)
+) -> FeedResponse:
+    return FeedResponse(items=community_feed(db, user))
 
 
 @router.get("/community/runners", response_model=RunnerSearchResponse)

@@ -220,6 +220,12 @@ h1 em { color: var(--orange); font-style: normal; }
 .runner-card .button { padding: 10px 16px; box-shadow: none; }
 .request-actions { display: grid; gap: 7px; }
 .request-actions > button:last-child, .link-button { border: 0; background: none; color: var(--muted); cursor: pointer; text-decoration: underline; }
+.feed-section { margin-top: 32px; }
+.feed-item { display: grid; grid-template-columns: 90px 1fr auto; gap: 16px; align-items: center; padding: 18px; border-radius: 20px; background: #f7f4eb; box-shadow: 0 8px 22px rgba(34,35,30,.07); }
+.feed-item > span { border-radius: 999px; background: var(--lime); padding: 8px 10px; text-align: center; font-size: 10px; font-weight: 800; }
+.feed-item:nth-child(odd) > span { background: var(--orange); color: var(--paper); }
+.feed-item h3 { font: 600 18px 'Space Grotesk'; margin: 3px 0; }
+.feed-item p, .feed-item small { margin: 0; color: var(--muted); font-size: 12px; }
 .map-main { max-width: 1500px; width: 100%; background: radial-gradient(circle at 100% 0, rgba(200,255,50,.12), transparent 28%); }
 .map-main .activities-header { margin-bottom: 28px; }
 .map-main .activities-header h1 { max-width: 760px; }

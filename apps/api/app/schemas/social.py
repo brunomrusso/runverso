@@ -51,3 +51,17 @@ class FollowersResponse(BaseModel):
     followers: list[RunnerSummaryResponse]
     pending: list[RunnerSummaryResponse]
     following: list[RunnerSummaryResponse]
+
+
+class FeedItemResponse(BaseModel):
+    id: str
+    kind: str
+    username: str
+    display_name: str | None
+    title: str
+    subtitle: str | None
+    happened_at: str
+
+
+class FeedResponse(BaseModel):
+    items: list[FeedItemResponse]

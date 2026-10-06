@@ -199,6 +199,73 @@ def follower_overview(db: Session, viewer: User) -> dict[str, list[dict]]:
     }
 
 
+def community_feed(db: Session, viewer: User) -> list[dict]:
+    followed_ids = db.scalars(
+        select(Follow.following_id).where(
+            Follow.follower_id == viewer.id, Follow.status == "accepted"
+        )
+    ).all()
+    if not followed_ids:
+        return []
+
+    races = db.scalars(
+        select(Race)
+        .join(User, Race.user_id == User.id)
+        .join(Profile, Profile.user_id == User.id)
+        .join(PrivacySettings, PrivacySettings.user_id == User.id)
+        .where(
+            Race.user_id.in_(followed_ids),
+            Race.visibility.in_(["public", "followers"]),
+            PrivacySettings.races_visibility.in_(["public", "followers"]),
+            PrivacySettings.profile_visibility == "public",
+        )
+        .order_by(Race.created_at.desc())
+        .limit(40)
+    ).all()
+    medals = db.scalars(
+        select(Medal)
+        .join(User, Medal.user_id == User.id)
+        .join(Profile, Profile.user_id == User.id)
+        .join(PrivacySettings, PrivacySettings.user_id == User.id)
+        .where(
+            Medal.user_id.in_(followed_ids),
+            Medal.visibility.in_(["public", "followers"]),
+            PrivacySettings.medals_visibility.in_(["public", "followers"]),
+            PrivacySettings.profile_visibility == "public",
+        )
+        .order_by(Medal.created_at.desc())
+        .limit(40)
+    ).all()
+
+    items = [
+        {
+            "id": str(race.id),
+            "kind": "race",
+            "username": race.user.profile.username,
+            "display_name": race.user.profile.display_name,
+            "title": race.event_name,
+            "subtitle": (
+                f"completou uma prova {race.category}"
+                + (f" em {race.city}" if race.city else "")
+            ),
+            "happened_at": race.created_at.isoformat(),
+        }
+        for race in races
+    ] + [
+        {
+            "id": str(medal.id),
+            "kind": "medal",
+            "username": medal.user.profile.username,
+            "display_name": medal.user.profile.display_name,
+            "title": medal.title or medal.race.event_name,
+            "subtitle": f"guardou uma medalha {medal.race.category}",
+            "happened_at": medal.created_at.isoformat(),
+        }
+        for medal in medals
+    ]
+    return sorted(items, key=lambda item: item["happened_at"], reverse=True)[:40]
+
+
 def answer_follow_request(db: Session, viewer: User, username: str, accept: bool) -> None:
     follower = profile_user(db, username)
     if not follower:

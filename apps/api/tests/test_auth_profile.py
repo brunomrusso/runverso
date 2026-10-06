@@ -16,6 +16,7 @@ from app.main import app
 from app.models import (
     Activity,
     AuthIdentity,
+    Follow,
     PrivacySettings,
     Profile,
     Race,
@@ -439,6 +440,45 @@ def test_runner_search_and_follow_request_management(
     assert follow.status_code == 200
     assert follow.json()["status"] == "pending"
     assert overview.json()["viewer_follow_status"] == "pending"
+
+
+def test_feed_contains_public_races_from_accepted_follows(
+    db: Session, authenticated_client: TestClient
+) -> None:
+    viewer = db.scalar(select(User).where(User.email == "runner@example.com"))
+    target = User(email="feed@example.com")
+    db.add(target)
+    db.flush()
+    db.add(
+        Profile(
+            user_id=target.id,
+            username="corredor_feed",
+            display_name="Corredor Feed",
+            onboarding_completed=True,
+        )
+    )
+    db.add(PrivacySettings(user_id=target.id))
+    db.add(Follow(follower_id=viewer.id, following_id=target.id, status="accepted"))
+    db.add(
+        Race(
+            user_id=target.id,
+            event_name="Prova do Feed",
+            race_date=datetime.now(UTC).date(),
+            category="10K",
+            official_distance_meters=10000,
+            visibility="public",
+        )
+    )
+    db.commit()
+
+    response = authenticated_client.get("/feed")
+
+    assert response.status_code == 200
+    item = response.json()["items"][0]
+    assert item["kind"] == "race"
+    assert item["title"] == "Prova do Feed"
+    assert item["username"] == "corredor_feed"
+    assert TestClient(app).get("/feed").status_code == 401
 
 
 def test_private_profile_is_not_public(authenticated_client: TestClient) -> None:

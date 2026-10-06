@@ -7,18 +7,24 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 type Runner = { username: string; display_name: string | null; city: string | null; state: string | null; country_code: string; follower_count: number; viewer_follow_status: string | null };
 type Followers = { followers: Runner[]; pending: Runner[]; following: Runner[] };
+type FeedItem = { id: string; kind: string; username: string; display_name: string | null; title: string; subtitle: string | null; happened_at: string };
 
 export default function CommunityPage() {
   const router = useRouter();
   const [items, setItems] = useState<Runner[]>([]);
   const [followers, setFollowers] = useState<Followers | null>(null);
+  const [feed, setFeed] = useState<FeedItem[]>([]);
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState("");
 
   const loadFollowers = useCallback(async () => {
-    const response = await fetch(`${apiUrl}/me/followers`, { credentials: "include" });
+    const [response, feedResponse] = await Promise.all([
+      fetch(`${apiUrl}/me/followers`, { credentials: "include" }),
+      fetch(`${apiUrl}/feed`, { credentials: "include" }),
+    ]);
     if (response.status === 401) return router.replace("/entrar");
     setFollowers(await response.json());
+    setFeed((await feedResponse.json()).items);
   }, [router]);
 
   useEffect(() => { loadFollowers(); }, [loadFollowers]);
@@ -58,6 +64,7 @@ export default function CommunityPage() {
       {message && <div className="sync-message">{message}</div>}
       <form className="runner-search" onSubmit={search}><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por nome ou @usuário" /><button className="button">Buscar</button></form>
       {!!items.length && <section className="community-section"><h2>Resultados</h2>{items.map((runner) => runnerCard(runner, <button className="button" onClick={() => follow(runner.username)}>{runner.viewer_follow_status === "pending" ? "Pendente" : runner.viewer_follow_status === "accepted" ? "Seguindo" : "Seguir"}</button>))}</section>}
+      <section className="community-section feed-section"><h2>Feed de quem você segue</h2>{feed.map((item) => <article className="feed-item" key={`${item.kind}-${item.id}`}><span>{item.kind === "medal" ? "MEDALHA" : "PROVA"}</span><div><a href={`/u/${item.username}`}><strong>{item.display_name}</strong></a><h3>{item.title}</h3><p>{item.subtitle}</p></div><small>{new Date(item.happened_at).toLocaleDateString("pt-BR")}</small></article>)}{!feed.length && <p className="public-note">Siga corredores para ver provas e medalhas compartilhadas aqui.</p>}</section>
       <section className="community-grid">
         <div className="community-section"><h2>Solicitações <b>{followers?.pending.length ?? 0}</b></h2>{followers?.pending.map((runner) => runnerCard(runner, <div className="request-actions"><button className="button" onClick={() => answer(runner.username, true)}>Aceitar</button><button onClick={() => answer(runner.username, false)}>Recusar</button></div>))}{!followers?.pending.length && <p className="public-note">Nenhuma solicitação pendente.</p>}</div>
         <div className="community-section"><h2>Seguidores <b>{followers?.followers.length ?? 0}</b></h2>{followers?.followers.map((runner) => runnerCard(runner, <button className="link-button" onClick={() => answer(runner.username, false)}>Remover</button>))}{!followers?.followers.length && <p className="public-note">Você ainda não possui seguidores.</p>}</div>
