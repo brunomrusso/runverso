@@ -89,6 +89,7 @@ export default function DashboardPage() {
           <a href="/mapa">Mapa da corrida</a>
           <a href="/atividades">Atividades</a>
           <a href="/conquistas">Recordes</a>
+          <a href="/comunidade">Comunidade</a>
           <a href="/perfil">Perfil</a>
         </nav>
         <button onClick={logout}>Sair</button>

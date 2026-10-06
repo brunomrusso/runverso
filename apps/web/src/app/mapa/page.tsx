@@ -35,7 +35,7 @@ export default function MapPage() {
   }
 
   return <main className="dashboard-shell">
-    <aside className="dashboard-sidebar"><a className="brand" href="/">RUNNE<span>VERSO</span></a><nav className="side-nav"><a href="/dashboard">Visão geral</a><a href="/provas">Minhas provas</a><a href="/medalhas">Porta-medalhas</a><a className="active" href="/mapa">Mapa da corrida</a><a href="/atividades">Atividades</a><a href="/conquistas">Recordes</a><a href="/perfil">Perfil</a></nav></aside>
+    <aside className="dashboard-sidebar"><a className="brand" href="/">RUNNE<span>VERSO</span></a><nav className="side-nav"><a href="/dashboard">Visão geral</a><a href="/provas">Minhas provas</a><a href="/medalhas">Porta-medalhas</a><a className="active" href="/mapa">Mapa da corrida</a><a href="/atividades">Atividades</a><a href="/conquistas">Recordes</a><a href="/comunidade">Comunidade</a><a href="/perfil">Perfil</a></nav></aside>
     <section className="dashboard-main map-main">
       <header className="activities-header"><div><span>PASSAPORTE GEOGRÁFICO</span><h1>Por onde você correu.</h1><p>Somente cidades aproximadas são exibidas; suas rotas e coordenadas originais continuam privadas.</p></div><button className="button" onClick={processLocations} disabled={processing}>{processing ? "Processando…" : "Atualizar locais"}</button></header>
       {message && <div className="sync-message">{message}</div>}

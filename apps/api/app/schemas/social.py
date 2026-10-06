@@ -31,3 +31,23 @@ class PublicProfileResponse(BaseModel):
 class FollowResponse(BaseModel):
     status: str
     follower_count: int
+
+
+class RunnerSummaryResponse(BaseModel):
+    username: str
+    display_name: str | None
+    city: str | None
+    state: str | None
+    country_code: str
+    follower_count: int
+    viewer_follow_status: str | None
+
+
+class RunnerSearchResponse(BaseModel):
+    items: list[RunnerSummaryResponse]
+
+
+class FollowersResponse(BaseModel):
+    followers: list[RunnerSummaryResponse]
+    pending: list[RunnerSummaryResponse]
+    following: list[RunnerSummaryResponse]

@@ -413,6 +413,34 @@ def test_public_profile_overview_respects_privacy(
     assert data["country_count"] is None
 
 
+def test_runner_search_and_follow_request_management(
+    db: Session, authenticated_client: TestClient
+) -> None:
+    target = User(email="target@example.com")
+    db.add(target)
+    db.flush()
+    db.add(
+        Profile(
+            user_id=target.id,
+            username="corredor_alvo",
+            display_name="Corredor Alvo",
+            onboarding_completed=True,
+        )
+    )
+    db.add(PrivacySettings(user_id=target.id, approve_followers=True))
+    db.commit()
+
+    search = authenticated_client.get("/community/runners?q=alvo")
+    follow = authenticated_client.post("/users/corredor_alvo/follow")
+    overview = authenticated_client.get("/community/corredor_alvo")
+
+    assert search.status_code == 200
+    assert search.json()["items"][0]["username"] == "corredor_alvo"
+    assert follow.status_code == 200
+    assert follow.json()["status"] == "pending"
+    assert overview.json()["viewer_follow_status"] == "pending"
+
+
 def test_private_profile_is_not_public(authenticated_client: TestClient) -> None:
     authenticated_client.patch(
         "/me/profile",

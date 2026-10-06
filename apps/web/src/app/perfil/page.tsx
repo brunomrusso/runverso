@@ -63,7 +63,7 @@ export default function ProfileSettingsPage() {
   const visibility = (name: keyof Privacy, label: string) => <label>{label}<select name={name} defaultValue={String(privacy[name])}><option value="public">Público</option><option value="followers">Seguidores</option><option value="private">Privado</option></select></label>;
 
   return <main className="dashboard-shell">
-    <aside className="dashboard-sidebar"><a className="brand" href="/">RUNNE<span>VERSO</span></a><nav className="side-nav"><a href="/dashboard">Visão geral</a><a href="/provas">Minhas provas</a><a href="/medalhas">Porta-medalhas</a><a href="/mapa">Mapa da corrida</a><a href="/atividades">Atividades</a><a href="/conquistas">Recordes</a><a className="active" href="/perfil">Perfil</a></nav></aside>
+    <aside className="dashboard-sidebar"><a className="brand" href="/">RUNNE<span>VERSO</span></a><nav className="side-nav"><a href="/dashboard">Visão geral</a><a href="/provas">Minhas provas</a><a href="/medalhas">Porta-medalhas</a><a href="/mapa">Mapa da corrida</a><a href="/atividades">Atividades</a><a href="/conquistas">Recordes</a><a href="/comunidade">Comunidade</a><a className="active" href="/perfil">Perfil</a></nav></aside>
     <section className="dashboard-main achievements-main">
       <header className="activities-header"><div><span>IDENTIDADE DO CORREDOR</span><h1>Perfil e privacidade.</h1><p>Escolha como sua história aparece para outras pessoas.</p></div>{runner.profile.username && <a className="button" href={`/u/${runner.profile.username}`}>Ver perfil público</a>}</header>
       {message && <div className="sync-message">{message}</div>}

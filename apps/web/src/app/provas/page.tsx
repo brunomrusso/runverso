@@ -106,7 +106,7 @@ export default function RacesPage() {
   }
 
   return <main className="dashboard-shell">
-    <aside className="dashboard-sidebar"><a className="brand" href="/">RUNNE<span>VERSO</span></a><nav className="side-nav"><a href="/dashboard">Visão geral</a><a className="active" href="/provas">Minhas provas</a><a href="/medalhas">Porta-medalhas</a><a href="/mapa">Mapa da corrida</a><a href="/atividades">Atividades</a><a href="/conquistas">Recordes</a><a href="/perfil">Perfil</a></nav></aside>
+    <aside className="dashboard-sidebar"><a className="brand" href="/">RUNNE<span>VERSO</span></a><nav className="side-nav"><a href="/dashboard">Visão geral</a><a className="active" href="/provas">Minhas provas</a><a href="/medalhas">Porta-medalhas</a><a href="/mapa">Mapa da corrida</a><a href="/atividades">Atividades</a><a href="/conquistas">Recordes</a><a href="/comunidade">Comunidade</a><a href="/perfil">Perfil</a></nav></aside>
     <section className="dashboard-main races-main">
       <header className="activities-header"><div><span>PASSAPORTE DE CORRIDAS</span><h1>Minhas provas.</h1><p>Confirme sugestões do Strava ou registre uma prova manualmente.</p></div><button className="button" onClick={() => setManual(!manual)}>Cadastrar prova</button></header>
       {message && <div className="sync-message">{message}</div>}

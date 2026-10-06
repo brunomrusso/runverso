@@ -1,7 +1,7 @@
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
-from app.models import Follow, Medal, Profile, Race, User
+from app.models import Follow, Medal, PrivacySettings, Profile, Race, User
 from app.schemas.profile import ProfileResponse
 from app.services.insights import personal_records
 
@@ -141,3 +141,77 @@ def unfollow_runner(db: Session, viewer: User, username: str) -> int:
         db.delete(follow)
         db.commit()
     return accepted_follower_count(db, runner)
+
+
+def runner_summary(db: Session, runner: User, viewer: User) -> dict:
+    follow = follow_state(db, viewer, runner)
+    return {
+        "username": runner.profile.username,
+        "display_name": runner.profile.display_name,
+        "city": runner.profile.city,
+        "state": runner.profile.state,
+        "country_code": runner.profile.country_code,
+        "follower_count": accepted_follower_count(db, runner),
+        "viewer_follow_status": follow.status if follow else None,
+    }
+
+
+def search_runners(db: Session, viewer: User, query: str) -> list[dict]:
+    pattern = f"%{query.strip()}%"
+    runners = db.scalars(
+        select(User)
+        .join(Profile)
+        .join(PrivacySettings)
+        .where(
+            User.id != viewer.id,
+            PrivacySettings.profile_visibility == "public",
+            or_(Profile.username.ilike(pattern), Profile.display_name.ilike(pattern)),
+        )
+        .order_by(Profile.display_name)
+        .limit(20)
+    ).all()
+    return [runner_summary(db, runner, viewer) for runner in runners]
+
+
+def follower_overview(db: Session, viewer: User) -> dict[str, list[dict]]:
+    pending = db.scalars(
+        select(User)
+        .join(Follow, Follow.follower_id == User.id)
+        .where(Follow.following_id == viewer.id, Follow.status == "pending")
+        .order_by(Follow.created_at)
+    ).all()
+    followers = db.scalars(
+        select(User)
+        .join(Follow, Follow.follower_id == User.id)
+        .where(Follow.following_id == viewer.id, Follow.status == "accepted")
+        .order_by(Follow.created_at.desc())
+    ).all()
+    following = db.scalars(
+        select(User)
+        .join(Follow, Follow.following_id == User.id)
+        .where(Follow.follower_id == viewer.id, Follow.status == "accepted")
+        .order_by(Follow.created_at.desc())
+    ).all()
+    return {
+        "pending": [runner_summary(db, runner, viewer) for runner in pending],
+        "followers": [runner_summary(db, runner, viewer) for runner in followers],
+        "following": [runner_summary(db, runner, viewer) for runner in following],
+    }
+
+
+def answer_follow_request(db: Session, viewer: User, username: str, accept: bool) -> None:
+    follower = profile_user(db, username)
+    if not follower:
+        raise ValueError("not_found")
+    follow = db.scalar(
+        select(Follow).where(
+            Follow.follower_id == follower.id, Follow.following_id == viewer.id
+        )
+    )
+    if not follow or (accept and follow.status != "pending"):
+        raise ValueError("not_found")
+    if accept:
+        follow.status = "accepted"
+    else:
+        db.delete(follow)
+    db.commit()
