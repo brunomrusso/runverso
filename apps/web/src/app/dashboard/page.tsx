@@ -7,17 +7,24 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 type Runner = {
   email: string;
-  profile: { display_name: string | null; username: string | null; favorite_distance: string | null };
+  profile: {
+    display_name: string | null;
+    username: string | null;
+    favorite_distance: string | null;
+    onboarding_completed: boolean;
+  };
   strava_connected: boolean;
 };
 type ActivityStats = { total: number; total_distance_meters: number };
+type Insights = { unlocked_count: number };
 
-function dashboardCards(stats: ActivityStats | null, raceCount: number, medalCount: number, countryCount: number) {
+function dashboardCards(stats: ActivityStats | null, raceCount: number, medalCount: number, countryCount: number, achievementCount: number) {
   return [
     { value: String(stats?.total ?? 0), label: "Atividades", detail: "Corridas importadas do Strava" },
     { value: String(raceCount), label: "Provas", detail: "Provas confirmadas" },
     { value: String(medalCount), label: "Medalhas", detail: "Conquistas no porta-medalhas" },
     { value: String(countryCount), label: "Países", detail: "Lugares onde você correu" },
+    { value: String(achievementCount), label: "Conquistas", detail: "Marcos desbloqueados" },
     { value: ((stats?.total_distance_meters ?? 0) / 1000).toFixed(0), label: "Quilômetros", detail: "Distância total importada" },
   ];
 }
@@ -29,6 +36,7 @@ export default function DashboardPage() {
   const [raceCount, setRaceCount] = useState(0);
   const [medalCount, setMedalCount] = useState(0);
   const [countryCount, setCountryCount] = useState(0);
+  const [achievementCount, setAchievementCount] = useState(0);
 
   useEffect(() => {
     Promise.all([
@@ -37,12 +45,19 @@ export default function DashboardPage() {
       fetch(`${apiUrl}/races/count`, { credentials: "include" }),
       fetch(`${apiUrl}/medals/count`, { credentials: "include" }),
       fetch(`${apiUrl}/geography/summary?mode=training`, { credentials: "include" }),
+      fetch(`${apiUrl}/insights`, { credentials: "include" }),
     ])
-      .then(async ([userResponse, statsResponse, racesResponse, medalsResponse, geographyResponse]) => {
+      .then(async ([userResponse, statsResponse, racesResponse, medalsResponse, geographyResponse, insightsResponse]) => {
         if (!userResponse.ok) throw new Error("unauthorized");
-        return [await userResponse.json(), await statsResponse.json(), await racesResponse.json(), await medalsResponse.json(), await geographyResponse.json()];
+        return [await userResponse.json(), await statsResponse.json(), await racesResponse.json(), await medalsResponse.json(), await geographyResponse.json(), await insightsResponse.json()];
       })
-      .then(([data, activityStats, races, medals, geography]) => {
+      .then((responses) => {
+        const data = responses[0] as Runner;
+        const activityStats = responses[1] as ActivityStats;
+        const races = responses[2] as { total: number };
+        const medals = responses[3] as { total: number };
+        const geography = responses[4] as { country_count: number };
+        const insights = responses[5] as Insights;
         if (!data.profile.onboarding_completed) router.replace("/onboarding");
         else {
           setRunner(data);
@@ -50,6 +65,7 @@ export default function DashboardPage() {
           setRaceCount(races.total);
           setMedalCount(medals.total);
           setCountryCount(geography.country_count);
+          setAchievementCount(insights.unlocked_count);
         }
       })
       .catch(() => router.replace("/entrar"));
@@ -72,12 +88,13 @@ export default function DashboardPage() {
           <a href="/medalhas">Porta-medalhas</a>
           <a href="/mapa">Mapa da corrida</a>
           <a href="/atividades">Atividades</a>
+          <a href="/conquistas">Recordes</a>
         </nav>
         <button onClick={logout}>Sair</button>
       </aside>
       <section className="dashboard-main">
         <header className="dashboard-header"><div><span>OLÁ, {runner.profile.username?.toUpperCase()}</span><h1>Bem-vindo ao<br /><em>seu Runneverso.</em></h1></div><div className="avatar">{runner.profile.display_name?.charAt(0).toUpperCase()}</div></header>
-        <div className="dashboard-stats">{dashboardCards(stats, raceCount, medalCount, countryCount).map((card) => <article key={card.label}><strong>{card.value}</strong><h2>{card.label}</h2><p>{card.detail}</p></article>)}</div>
+        <div className="dashboard-stats">{dashboardCards(stats, raceCount, medalCount, countryCount, achievementCount).map((card) => <article key={card.label}><strong>{card.value}</strong><h2>{card.label}</h2><p>{card.detail}</p></article>)}</div>
         <section className="next-step"><div><span>PRÓXIMO PASSO</span><h2>{runner.strava_connected ? (stats?.total ? "Explore seu histórico de corrida" : "Importe suas primeiras atividades") : "Conecte seu Strava"}</h2><p>Transforme seu histórico de corrida em provas, recordes e lugares conquistados.</p></div><a className="button" href={runner.strava_connected ? "/atividades" : `${apiUrl}/auth/strava/link`}>{runner.strava_connected ? "Ver atividades" : "Conectar Strava"} <b>→</b></a></section>
       </section>
     </main>

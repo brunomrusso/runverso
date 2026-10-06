@@ -18,6 +18,7 @@ from app.models import (
     AuthIdentity,
     PrivacySettings,
     Profile,
+    Race,
     StravaConnection,
     User,
     UserSession,
@@ -321,6 +322,62 @@ def test_public_profile_hides_real_name_by_default(authenticated_client: TestCli
     assert response.status_code == 200
     assert response.json()["display_name"] == "Nome Público"
     assert response.json()["real_name"] is None
+
+
+def test_insights_select_best_race_times_and_unlock_achievements(
+    db: Session, authenticated_client: TestClient
+) -> None:
+    user = db.scalar(select(User).where(User.email == "runner@example.com"))
+    db.add_all(
+        [
+            Race(
+                user_id=user.id,
+                event_name="10K rápido",
+                race_date=datetime.now(UTC).date(),
+                category="10K",
+                official_distance_meters=10000,
+                net_time_seconds=3000,
+            ),
+            Race(
+                user_id=user.id,
+                event_name="10K lento",
+                race_date=datetime.now(UTC).date(),
+                category="10K",
+                official_distance_meters=10000,
+                net_time_seconds=3200,
+            ),
+            Race(
+                user_id=user.id,
+                event_name="Maratona",
+                race_date=datetime.now(UTC).date(),
+                category="42K",
+                official_distance_meters=42195,
+                net_time_seconds=14400,
+            ),
+            Race(
+                user_id=user.id,
+                event_name="Sem tempo oficial",
+                race_date=datetime.now(UTC).date(),
+                category="5K",
+                official_distance_meters=5000,
+                net_time_seconds=None,
+            ),
+        ]
+    )
+    db.commit()
+
+    response = authenticated_client.get("/insights")
+
+    assert response.status_code == 200
+    data = response.json()
+    records = {item["category"]: item for item in data["records"]}
+    assert records["10K"]["event_name"] == "10K rápido"
+    assert records["10K"]["pace_seconds_per_km"] == 300
+    assert "5K" not in records
+    unlocked = {item["code"]: item["unlocked"] for item in data["achievements"]}
+    assert unlocked["first_race"] is True
+    assert unlocked["first_marathon"] is True
+    assert TestClient(app).get("/insights").status_code == 401
 
 
 def test_private_profile_is_not_public(authenticated_client: TestClient) -> None:
